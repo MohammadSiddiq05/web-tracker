@@ -3,6 +3,8 @@ import Image from "next/image";
 
 import { SignIn, SignInButton, UserButton, useUser } from "@clerk/nextjs";
 
+// landing page
+
 export default function Home() {
 
 
