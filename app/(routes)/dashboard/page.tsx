@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useState } from 'react'
 
 const Dashboard = () => {
@@ -22,9 +23,11 @@ const Dashboard = () => {
           </p>
         </div>
 
+        <Link href={'/dashboard/new'}>
         <Button className='rounded-xl px-6 py-5 text-base shadow-md'>
           + Add Website
         </Button>
+        </Link>
       </div>
 
       {/* Empty State */}
@@ -48,9 +51,11 @@ const Dashboard = () => {
             Monitor uptime, analytics and performance easily.
           </p>
 
+          <Link href={'/dashboard/new'}>
           <Button className='rounded-xl px-8 py-5 text-base shadow-md'>
             + Add Your First Website
           </Button>
+          </Link>
         </div>
       ) : (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
