@@ -26,9 +26,10 @@ export const POST = async (req: NextRequest) => {
       (eq(websitesTable.domain, domain))
     )
 
-    if ( esxitingDomain.length > 0) {
-      return NextResponse.json({ message: "Domain already exist", data  :  esxitingDomain[0] },
-        { status: 400 }, 
+    if (esxitingDomain.length > 0) {
+      return NextResponse.json(
+        { message: "Domain already exists" },
+        { status: 400 }
       )
     }
 

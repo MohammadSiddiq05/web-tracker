@@ -45,23 +45,35 @@ const WebsiteForm = () => {
     e.preventDefault()
 
     setLoading(true)
-    const websiteId = crypto.randomUUID()
-    const result = await axios.post('/api/website', {
-      websiteId: websiteId,
-      domain: domain,
-      timezone: timezone,
-      enableLocalhostTracking: enableLocalhostTracking
-    })
-    console.log(result.data)
 
-    if (result.data.message) {
-      router.push('/dashboard/new?step=script&websiteId=' + result?.data?.data?.websiteId + '&domain=' + result?.data?.data?.domain)
-    } else if (!result?.data?.message) {
-      router.push('/dashboard/new?step=script&websiteId=' + websiteId + '&domain=' + domain)
-    } else {
-      alert(result.data.message)
+    try {
+
+      const result = await axios.post('/api/website', {
+        domain,
+        timezone,
+        enableLocalhostTracking
+      })
+
+      const websiteId = result?.data?.[0]?.websiteId
+      const websiteDomain = result?.data?.[0]?.domain
+
+      router.push(
+        `/dashboard/new?step=script&websiteId=${encodeURIComponent(websiteId)}&domain=${encodeURIComponent(websiteDomain)}`
+      )
+
+    } catch (error: any) {
+
+      console.log(error)
+
+      alert(
+        error?.response?.data?.message || "Something went wrong"
+      )
+
+    } finally {
+
+      setLoading(false)
+
     }
-    setLoading(false)
   }
 
   return (
@@ -195,7 +207,9 @@ const WebsiteForm = () => {
             {/* Checkbox */}
             <div className="flex items-start gap-3 bg-gray-50 border border-gray-200 rounded-2xl p-4">
 
-              <Checkbox className="mt-1" onCheckedChange={(value: boolean) => setEnableLocalhostTracking(value)} />
+              <Checkbox className="mt-1" onCheckedChange={(value) =>
+  setEnableLocalhostTracking(value === true)
+} />
 
               <div>
 
