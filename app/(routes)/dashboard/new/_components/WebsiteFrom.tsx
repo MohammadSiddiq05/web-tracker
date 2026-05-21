@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card"
 
 import { Separator } from "@/components/ui/separator"
-
+import axios from 'axios';
 import {
   InputGroup,
   InputGroupAddon,
@@ -28,12 +28,40 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 
-import { Globe, Plus, ShieldCheck } from "lucide-react"
+import { Globe, Loader2Icon, Plus, ShieldCheck } from "lucide-react"
+import { useState } from "react"
+
+import { useRouter } from "next/navigation";
 
 const WebsiteForm = () => {
 
-  const onFormSubmit = (e: any) => {
+  const router = useRouter();
+  const [domain, setDomain] = useState('');
+  const [timezone, setTimezone] = useState('');
+  const [enableLocalhostTracking, setEnableLocalhostTracking] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  const onFormSubmit = async (e: any) => {
     e.preventDefault()
+
+    setLoading(true)
+    const websiteId = crypto.randomUUID()
+    const result = await axios.post('/api/website', {
+      websiteId: websiteId,
+      domain: domain,
+      timezone: timezone,
+      enableLocalhostTracking: enableLocalhostTracking
+    })
+    console.log(result.data)
+
+    if (result.data.message) {
+      router.push('/dashboard/new?step=script&websiteId=' + result?.data?.data?.websiteId + '&domain=' + result?.data?.data?.domain)
+    } else if (!result?.data?.message) {
+      router.push('/dashboard/new?step=script&websiteId=' + websiteId + '&domain=' + domain)
+    } else {
+      alert(result.data.message)
+    }
+    setLoading(false)
   }
 
   return (
@@ -81,7 +109,7 @@ const WebsiteForm = () => {
                 Website Domain
               </label>
 
-              <InputGroup className="w-full">
+              <InputGroup className="w-full" >
 
                 <InputGroupAddon className="gap-2 px-4">
                   <Globe size={18} />
@@ -89,8 +117,11 @@ const WebsiteForm = () => {
                 </InputGroupAddon>
 
                 <InputGroupInput
+                  type="text"
                   placeholder="mywebsite.com"
                   className="h-12 text-base"
+                  required
+                  onChange={(e) => setDomain('https://' + e.target.value)}
                 />
 
               </InputGroup>
@@ -104,7 +135,7 @@ const WebsiteForm = () => {
                 Timezone
               </label>
 
-              <Select>
+              <Select required onValueChange={(value) => setTimezone(value)}>
 
                 <SelectTrigger className="w-full h-12 rounded-xl">
                   <SelectValue placeholder="Select your timezone" />
@@ -117,10 +148,6 @@ const WebsiteForm = () => {
 
                     <SelectItem value="pkt">
                       Pakistan Standard Time
-                    </SelectItem>
-
-                    <SelectItem value="ist">
-                      India Standard Time
                     </SelectItem>
 
                     <SelectItem value="jst">
@@ -168,7 +195,7 @@ const WebsiteForm = () => {
             {/* Checkbox */}
             <div className="flex items-start gap-3 bg-gray-50 border border-gray-200 rounded-2xl p-4">
 
-              <Checkbox className="mt-1" />
+              <Checkbox className="mt-1" onCheckedChange={(value: boolean) => setEnableLocalhostTracking(value)} />
 
               <div>
 
@@ -196,10 +223,11 @@ const WebsiteForm = () => {
 
             {/* Button */}
             <Button
-              type="submit"
+              type="submit" disabled={loading}
               className="w-full h-12 rounded-2xl text-base font-semibold"
             >
-              <Plus/>Add Website
+              {loading ? <Loader2Icon className="animate-spin" /> : <Plus />}
+              Add Website
             </Button>
 
           </form>
