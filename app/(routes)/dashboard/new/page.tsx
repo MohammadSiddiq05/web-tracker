@@ -2,12 +2,23 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import WebsiteForm from "./_components/WebsiteFrom"
+import ScriptSection from "./_components/ScriptSection"
 
-const AddWebsite = () => {
+type Props = {
+  searchParams: {
+    step?: string
+    websiteId?: string
+    domain?: string
+  }
+}
+
+const AddWebsite = ({ searchParams }: Props) => {
+
+  const isScriptStep = searchParams?.step === 'script'
+
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-8 md:px-10">
 
-      {/* Top Section */}
       <div className="max-w-5xl mx-auto">
 
         {/* Back Button */}
@@ -15,20 +26,10 @@ const AddWebsite = () => {
 
           <Button
             variant="outline"
-            className="
-              mb-6
-              rounded-xl
-              px-5
-              py-5
-              flex items-center gap-2
-              hover:scale-105
-              transition-all
-            "
+            className="mb-6 rounded-xl px-5 py-5 flex items-center gap-2 hover:scale-105 transition-all"
           >
-
             <ArrowLeft size={18} />
             Dashboard
-
           </Button>
 
         </Link>
@@ -37,20 +38,28 @@ const AddWebsite = () => {
         <div className="mb-8">
 
           <h1 className="text-4xl font-bold text-gray-800">
-            Add Website
+            {isScriptStep ? 'Install Tracking Script' : 'Add Website'}
           </h1>
 
           <p className="text-gray-500 mt-2 text-base">
-            Add your website details to start tracking analytics,
-            uptime and performance.
+            {isScriptStep
+              ? 'Copy and paste this script in your website to start tracking.'
+              : 'Add your website details to start tracking analytics, uptime and performance.'
+            }
           </p>
 
         </div>
 
-        {/* Form Section */}
+        {/* Content */}
         <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-2 md:p-4">
 
-          <WebsiteForm />
+          {isScriptStep
+            ? <ScriptSection
+                websiteId={searchParams.websiteId || ''}
+                domain={searchParams.domain || ''}
+              />
+            : <WebsiteForm />
+          }
 
         </div>
 

@@ -21,3 +21,49 @@ export const websitesTable = pgTable("websites", {
 
   userEmail: varchar({ length: 255 }).notNull(),
 });
+
+export const pageViewTable = pgTable("pageViews", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+
+  visitorId: varchar({ length: 255 }),
+
+  websiteId: uuid("websiteId").notNull(),
+
+  domain: varchar({ length: 255 }).notNull(),
+
+  url: varchar({ length: 2048 }),
+
+  type: varchar({ length: 50 }).notNull(),
+
+  referrer: varchar({ length: 2048 }),
+
+  entryTime: varchar({ length: 100 }),
+
+  exitTime: varchar({ length: 100 }),
+
+  totalActiveTime: integer(),
+
+  urlParams: varchar(),
+
+  utm_source: varchar({ length: 255 }),
+
+  utm_medium: varchar({ length: 255 }),
+
+  utm_campaign: varchar({ length: 255 }),
+
+  device: varchar(),
+
+  os: varchar(),
+
+  browser: varchar(),
+
+  city: varchar(),
+
+  region: varchar(),
+
+  country: varchar(),
+
+  ipAddress: varchar(),
+
+  refParams: varchar()
+});
