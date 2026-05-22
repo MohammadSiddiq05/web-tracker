@@ -57,6 +57,7 @@ export const POST = async (req: NextRequest) => {
                 city: geoInfo.city,
                 region: geoInfo.regionName,
                 country: geoInfo.country,
+                countryCode: geoInfo.countryCode,
                 ipAddress: ip || "",
                 refParams: JSON.stringify(body.refParams),
             })
