@@ -11,13 +11,13 @@ export const usersTable = pgTable("users", {
 export const websitesTable = pgTable("websites", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
 
-  websiteId: varchar({ length: 255 }).notNull().unique(),
+  websiteId: uuid("websiteId").defaultRandom().notNull().unique(),
 
   domain: varchar({ length: 255 }).notNull().unique(),
 
   timezone: varchar({ length: 255 }).notNull(),
 
-  enableLocalhostTracking: boolean().default(false),
+  enableLocalhostTracking: boolean().default(false).notNull(),
 
   userEmail: varchar({ length: 255 }).notNull(),
 });

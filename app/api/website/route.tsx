@@ -7,7 +7,6 @@ import { NextRequest, NextResponse } from "next/server";
 export const POST = async (req: NextRequest) => {
   try {
     const {
-      websiteId,
       domain,
       timezone,
       enableLocalhostTracking,
@@ -35,7 +34,6 @@ export const POST = async (req: NextRequest) => {
 
     const result = await db.insert(websitesTable)
       .values({
-        websiteId,
         domain,
         timezone,
         enableLocalhostTracking,

@@ -61,6 +61,7 @@ const WebsiteForm = () => {
         `/dashboard/new?step=script&websiteId=${encodeURIComponent(websiteId)}&domain=${encodeURIComponent(websiteDomain)}`
       )
 
+
     } catch (error: any) {
 
       console.log(error)
@@ -133,6 +134,7 @@ const WebsiteForm = () => {
                   placeholder="mywebsite.com"
                   className="h-12 text-base"
                   required
+                  value={domain.replace("https://", "")}
                   onChange={(e) => setDomain('https://' + e.target.value)}
                 />
 
@@ -147,7 +149,7 @@ const WebsiteForm = () => {
                 Timezone
               </label>
 
-              <Select required onValueChange={(value) => setTimezone(value)}>
+              <Select required onValueChange={(value) => setTimezone(value)} value={timezone}>
 
                 <SelectTrigger className="w-full h-12 rounded-xl">
                   <SelectValue placeholder="Select your timezone" />
@@ -208,8 +210,8 @@ const WebsiteForm = () => {
             <div className="flex items-start gap-3 bg-gray-50 border border-gray-200 rounded-2xl p-4">
 
               <Checkbox className="mt-1" onCheckedChange={(value) =>
-  setEnableLocalhostTracking(value === true)
-} />
+                setEnableLocalhostTracking(value === true)
+              } />
 
               <div>
 
