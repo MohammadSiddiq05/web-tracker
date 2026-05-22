@@ -1,3 +1,7 @@
+'use client'
+
+import { useState } from 'react'
+
 import { Button } from '@/components/ui/button'
 
 import {
@@ -17,7 +21,8 @@ import { WebsiteType } from '@/configs/type'
 
 import {
     Globe,
-    ArrowRight,
+    Copy,
+    Check,
 } from 'lucide-react'
 
 import {
@@ -48,6 +53,16 @@ type Props = {
 }
 
 const WebsiteCard = ({ website }: Props) => {
+
+    const [copied, setCopied] = useState(false)
+
+    const scriptTag = `<script src="${window.location.origin}/analytic.js" data-website-id="${website.id}" data-domain="${website.domain}" defer></script>`
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(scriptTag)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+    }
 
     return (
 
@@ -142,10 +157,36 @@ const WebsiteCard = ({ website }: Props) => {
 
             </CardContent>
 
-            <CardFooter>
+            <CardFooter className='flex flex-col gap-3 items-start'>
 
                 <h2 className='text-sm'><strong>24</strong> Visitors</h2>
 
+                {/* Script Section */}
+                <div className='w-full bg-gray-50 rounded-xl p-3 border border-gray-200'>
+
+                    <p className='text-xs text-gray-500 mb-2 font-medium'>
+                        Tracking Script
+                    </p>
+
+                    <p className='text-xs text-gray-700 break-all font-mono'>
+                        {scriptTag}
+                    </p>
+
+                </div>
+
+                {/* Copy Button */}
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className='w-full rounded-xl flex items-center gap-2'
+                    onClick={handleCopy}
+                >
+                    {copied
+                        ? <Check size={14} />
+                        : <Copy size={14} />
+                    }
+                    {copied ? 'Copied!' : 'Copy Script'}
+                </Button>
 
             </CardFooter>
 
