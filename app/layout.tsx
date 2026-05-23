@@ -35,8 +35,8 @@ export default function RootLayout({
         <head>
           <script
             src="http://localhost:3000/analytic.js"
-            data-website-id="81df328c-254d-440a-a93c-a36799547c4e"
-            data-domain="https://sid.pk"
+            data-website-id="68efda4f-3c2c-4e15-ba6f-003bf0ac8be4"
+            data-domain="https://google.com"
             defer
           ></script>
         </head>
