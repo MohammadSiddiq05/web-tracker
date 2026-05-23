@@ -96,11 +96,11 @@ export async function GET(req: NextRequest) {
         .from(websitesTable)
         .where(
           and(
-            eq(websitesTable.userEmail, user.primaryEmailAddress!.emailAddress),
-            eq(websitesTable.websiteId, websiteId)
+            eq(websitesTable?.userEmail, user?.primaryEmailAddress?.emailAddress as string),
+            eq(websitesTable?.websiteId, websiteId)
           )
         );
-      return NextResponse.json(websites[0]);
+      return NextResponse.json(websites);
     }
 
     const websites = await db

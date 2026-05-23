@@ -11,7 +11,7 @@
 
 
     const session_duration = 12 * 60 * 50 * 1000;
-    const now = Date.now
+    const now = Date.now()
     let visitorId = localStorage.getItem('webtrack_visitor_id');
     let sessionTime = localStorage.getItem('webtrack_session_time');
     if (!visitorId || (now - sessionTime) > session_duration) {
