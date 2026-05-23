@@ -33,7 +33,7 @@
     const domain =
         script.getAttribute('data-domain');
 
-    const entryTime = Date.now();
+    const entryTime = Math.floor(Date.now() / 1000);
 
     const urlParams =
         new URLSearchParams(
@@ -82,16 +82,16 @@
     );
 
     let activeStartTime =
-        Date.now();
+        Math.floor(Date.now() / 1000)
 
     let totalActiveTime = 0;
 
     const handleExit = () => {
 
-        const exitTime = Date.now();
+        const exitTime = Math.floor(Date.now() / 1000);
 
         totalActiveTime +=
-            Date.now() - activeStartTime;
+            Math.floor(Date.now() / 1000) - activeStartTime;
 
         fetch(
             `${BASE_URL}/api/track`,

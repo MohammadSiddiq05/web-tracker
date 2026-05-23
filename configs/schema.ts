@@ -63,6 +63,8 @@ export const pageViewTable = pgTable("pageViews", {
 
   country: varchar(),
 
+  countryCode : varchar(),
+
   ipAddress: varchar(),
 
   refParams: varchar()
