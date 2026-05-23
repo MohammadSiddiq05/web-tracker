@@ -75,7 +75,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const websiteId = req.nextUrl.searchParams.get("websiteid");
+  const websiteId = req.nextUrl.searchParams.get("websiteId");
   const from = req.nextUrl.searchParams.get("from");
   const to = req.nextUrl.searchParams.get("to");
   const websiteOnly = req.nextUrl.searchParams.get("websiteOnly");

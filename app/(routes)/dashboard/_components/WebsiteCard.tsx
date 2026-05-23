@@ -89,6 +89,8 @@ const WebsiteCard = ({ websiteInfo }: Props) => {
                         margin={{
                             left: 12,
                             right: 12,
+                            top : 8,
+                            bottom : 10
                         }}
                     >
                         <defs>
