@@ -15,13 +15,20 @@ export type WebsiteInfoType = {
 export type AnalyticsType = {
     avgActiveTime: number,
     totalActiveTime: number,
-    totalSesstions: number,
-    last24hVisitors: number,
-    hourlyVisitors: HourlyVisitorsType[]
+    totalSessions: number,
+    totalVisitors: number,
+    hourlyVisitors: HourlyVisitorsType[],
+    dailyVisitors : DailyVisitorsType[]
 }
 
 export type HourlyVisitorsType = {
-    count: number, date: string,
+    count: number,
+    date: string,
     hour: number,
     hourLabel: string
+}
+
+export type DailyVisitorsType = {
+    count : number,
+    date : string
 }
