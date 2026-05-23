@@ -75,7 +75,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const websiteId = req.nextUrl.searchParams.get("websiteid");
+  const websiteId = req.nextUrl.searchParams.get("websiteId");
   const from = req.nextUrl.searchParams.get("from");
   const to = req.nextUrl.searchParams.get("to");
   const websiteOnly = req.nextUrl.searchParams.get("websiteOnly");
@@ -96,11 +96,11 @@ export async function GET(req: NextRequest) {
         .from(websitesTable)
         .where(
           and(
-            eq(websitesTable.userEmail, user.primaryEmailAddress!.emailAddress),
-            eq(websitesTable.websiteId, websiteId)
+            eq(websitesTable?.userEmail, user?.primaryEmailAddress?.emailAddress as string),
+            eq(websitesTable?.websiteId, websiteId)
           )
         );
-      return NextResponse.json(websites[0]);
+      return NextResponse.json(websites);
     }
 
     const websites = await db

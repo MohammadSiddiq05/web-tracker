@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import WebsiteCard from './_components/WebsiteCard'
 import { Skeleton } from '@/components/ui/skeleton'
+import { format, formatDate } from 'date-fns'
 
 
 const Dashboard = () => {
@@ -24,8 +25,8 @@ const Dashboard = () => {
     try {
 
       setLoading(true)
-
-      const result = await axios.get('/api/website');
+      const today = format(new Date(), 'yyy-MM-dd')
+      const result = await axios.get('/api/website?from=' + today + "&to=" + today);
 
       setWebsiteList(result?.data)
 

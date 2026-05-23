@@ -9,17 +9,24 @@
 
     const BASE_URL = document.currentScript.src.replace('/analytic.js', '')
 
-    let visitorId =
-        localStorage.getItem('webtrack-visitor_id');
 
-    if (!visitorId) {
+    const session_duration = 12 * 60 * 50 * 1000;
+    const now = Date.now()
+    let visitorId = localStorage.getItem('webtrack_visitor_id');
+    let sessionTime = localStorage.getItem('webtrack_session_time');
+    if (!visitorId || (now - sessionTime) > session_duration) {
+        if (visitorId) {
+            localStorage.removeItem('webtrack_visitor_id');
+            localStorage.removeItem('webtrack session_time');
+        }
+
         visitorId = generateUUID();
-
-        localStorage.setItem(
-            'webtrack-visitor_id',
-            visitorId
-        );
+        localStorage.setItem('webtrack_visitor_id', visitorId)
+        localStorage.setItem('webtrack_session_time', String(now))
+    } else {
+        console.log("Exisitng session")
     }
+
 
     const script =
         document.currentScript ||
@@ -72,7 +79,7 @@
                 entryTime,
                 referrer,
                 url: window.location.href,
-                visitorId,
+                visitorId: visitorId,
                 utm_source,
                 utm_medium,
                 utm_campaign,
@@ -108,7 +115,9 @@
                     domain,
                     exitTime,
                     totalActiveTime,
-                    visitorId
+                    visitorId : visitorId,
+                    exitUrl : window.location.href
+
                 })
             }
         );
