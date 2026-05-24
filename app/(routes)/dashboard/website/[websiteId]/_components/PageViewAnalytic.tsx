@@ -14,7 +14,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 type Props = {
     websiteInfo: WebsiteInfoType | undefined | null;
     loading?: boolean;
-    analyticType: string
+    analyticType: string,
+    liveUserCount : number
 };
 
 const chartConfig = {
@@ -27,7 +28,7 @@ const chartConfig = {
 
 
 
-const PageViewAnalytic = ({ websiteInfo, loading, analyticType }: Props) => {
+const PageViewAnalytic = ({ websiteInfo, loading, analyticType, liveUserCount }: Props) => {
     const webAnalytics = websiteInfo?.analytics;
 
 
@@ -63,7 +64,7 @@ const PageViewAnalytic = ({ websiteInfo, loading, analyticType }: Props) => {
 
                     <Separator orientation="vertical" className="h-12" />
 
-                    <CountItem label="Live Users" value={"11"} />
+                    <CountItem label="Live Users" value={liveUserCount ?? 0} />
 
                 </CardContent>
 
