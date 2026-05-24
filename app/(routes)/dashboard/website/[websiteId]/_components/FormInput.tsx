@@ -11,7 +11,7 @@ import {
     Settings,
 } from "lucide-react";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import {
     Select,
@@ -39,11 +39,13 @@ import { DateRange } from "react-day-picker";
 
 type Props = {
     websiteList: WebsiteType[];
-    setFormData: any
+    setFormData: any,
+    setReloadData : any
 };
 const FormInput = ({
     websiteList,
     setFormData,
+    setReloadData
 }: Props) => {
 
     const { websiteId } = useParams();
@@ -96,7 +98,7 @@ const FormInput = ({
     React.useEffect(() => {
 
         setFormData({
-            analyticType : analyticType,
+            analyticType: analyticType,
             fromDate: date?.from ?? today,
             toDate: date?.to ?? today,
         });
@@ -106,6 +108,8 @@ const FormInput = ({
         date,
         setFormData
     ]);
+
+    const router = useRouter();
 
     return (
 
@@ -117,7 +121,7 @@ const FormInput = ({
                     value={
                         (websiteId as string) || ""
                     }
-                >
+                    onValueChange={(v) => router.push('/dashboard/website/' + v)}>
 
                     <SelectTrigger className="w-full max-w-52">
 
@@ -296,7 +300,7 @@ const FormInput = ({
 
                 </Select>
 
-                <Button variant={'outline'}>
+                <Button variant={'outline'} onClick={()=>setReloadData(true)}>
                     <RefreshCcw />
                 </Button>
 

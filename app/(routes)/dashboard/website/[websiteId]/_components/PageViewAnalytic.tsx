@@ -9,6 +9,7 @@ import {
     ChartContainer,
     type ChartConfig,
 } from "@/components/ui/chart";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Props = {
     websiteInfo: WebsiteInfoType | undefined | null;
@@ -32,7 +33,7 @@ const PageViewAnalytic = ({ websiteInfo, loading, analyticType }: Props) => {
 
     return (
         <div className="mt-7">
-            <Card className="rounded-3xl border border-gray-200 shadow-sm">
+            {!loading ? <Card className="rounded-3xl border border-gray-200 shadow-sm">
 
                 {/* Stats Row */}
                 <CardContent className="p-5 flex items-center gap-6 flex-wrap">
@@ -118,7 +119,9 @@ const PageViewAnalytic = ({ websiteInfo, loading, analyticType }: Props) => {
                     </ChartContainer>
                 </CardContent>
 
-            </Card>
+            </Card> : <div>
+                <Skeleton className="w-full h-80 rounded-2xl"/>
+                </div>}
         </div>
     );
 };
