@@ -115,8 +115,8 @@
                     domain,
                     exitTime,
                     totalActiveTime,
-                    visitorId : visitorId,
-                    exitUrl : window.location.href
+                    visitorId: visitorId,
+                    exitUrl: window.location.href
 
                 })
             }
@@ -128,5 +128,33 @@
         handleExit
     );
 
+
+    const sendLivePing = async () => {
+
+        await fetch(
+            "http://localhost:3000/api/live",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                },
+
+                body: JSON.stringify({
+
+                    visitorId,
+
+                    websiteId,
+
+                    last_seen: Date.now().toString(),
+
+                    url: window.location.href,
+
+                }),
+            }
+        );
+    };
+
+    setInterval(sendLivePing, 10000)
 
 })();

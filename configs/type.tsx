@@ -46,4 +46,9 @@ export type ReferralsType = {
     name: string;
 }
 
-export const IMAGE_URL_FOR_DOMAINS = 'https://icons.duckduckgo.com/ip3/<domain>.ico';  // ✅ Fixed: removed trailing backslash
+export const IMAGE_URL_FOR_DOMAINS = 'https://icons.duckduckgo.com/ip3/<domain>.ico';  
+
+export type LiveUser = {
+    visitorId : string,
+    websiteId : string
+}
