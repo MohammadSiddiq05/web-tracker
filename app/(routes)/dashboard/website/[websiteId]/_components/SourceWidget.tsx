@@ -1,78 +1,120 @@
-import { Card, CardContent } from '@/components/ui/card'
-import { AnalyticsType, IMAGE_URL_FOR_DOMAINS } from '@/configs/type'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { TrendingUp } from "lucide-react"
-import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from "recharts"
-import { ChartConfig, ChartTooltip, ChartTooltipContent, ChartContainer } from '@/components/ui/chart'
+import { Card, CardContent } from "@/components/ui/card";
+import { AnalyticsType, IMAGE_URL_FOR_DOMAINS } from "@/configs/type";
+
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from "@/components/ui/tabs";
+
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    LabelList,
+    XAxis,
+    YAxis,
+} from "recharts";
+
+import {
+    ChartConfig,
+    ChartTooltip,
+    ChartTooltipContent,
+    ChartContainer,
+} from "@/components/ui/chart";
+
 type Props = {
-    websiteAnalytics: AnalyticsType | undefined,
-    loading: boolean
-}
+    websiteAnalytics: AnalyticsType | undefined;
+    loading: boolean;
+};
 
 const chartConfig = {
     desktop: {
         label: "Desktop",
         color: "var(--chart-2)",
     },
-    mobile: {
-        label: "Mobile",
-        color: "var(--chart-2)",
-    },
-    label: {
-        color: "var(--background)",
-    },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
-const SourceWidget = ({ websiteAnalytics, loading }: Props) => {
+const SourceWidget = ({
+    websiteAnalytics,
+    loading,
+}: Props) => {
 
-
-    const BarLabelWithImage = (props: any) => {
+    // REFERRAL LABEL
+    const ReferralLabel = (props: any) => {
 
         const {
             x,
             y,
             height,
-            value,
+            payload,
         } = props;
 
+        const domain = payload?.domainName?.trim() || payload?.name?.trim() || "direct";
+
         const imageUrl =
-            IMAGE_URL_FOR_DOMAINS?.replace(
+
+            IMAGE_URL_FOR_DOMAINS.replace(
                 "<domain>",
-                value
+                domain.replace(
+                    "https://",
+                    ""
+                )
             );
 
         return (
-
             <g
                 transform={`translate(${x + 8}, ${y + height / 2 - 8})`}
             >
-
-                {/* SVG Image */}
                 <image
                     href={imageUrl}
                     width={16}
                     height={16}
                 />
 
-                {/* SVG Text */}
                 <text
                     x={24}
                     y={12}
                     fontSize={12}
-                    fill="#ffffff"
+                    fill="white"
                 >
-
-                    {value}
-
+                    {domain}
                 </text>
+            </g>
+        );
+    };
 
+    // REF PARAM LABEL
+    const RefParamLabel = (props: any) => {
+
+        const {
+            x,
+            y,
+            height,
+            payload,
+        } = props;
+
+        return (
+            <g
+                transform={`translate(${x + 8}, ${y + height / 2 - 8})`}
+            >
+                <text
+                    x={0}
+                    y={12}
+                    fontSize={12}
+                    fill="white"
+                >
+                    {payload?.name}
+                </text>
             </g>
         );
     };
 
     return (
-        <div>
-            <Card>
+        <div className="w-full">
+            <Card className="rounded-3xl border shadow-sm">
+
                 <CardContent className="p-5">
 
                     <Tabs
@@ -80,14 +122,14 @@ const SourceWidget = ({ websiteAnalytics, loading }: Props) => {
                         className="w-full"
                     >
 
-                        <TabsList>
+                        <TabsList className="mb-5">
 
                             <TabsTrigger value="source">
                                 Source
                             </TabsTrigger>
 
                             <TabsTrigger value="referral">
-                                Referrals
+                                Ref Params
                             </TabsTrigger>
 
                         </TabsList>
@@ -97,16 +139,20 @@ const SourceWidget = ({ websiteAnalytics, loading }: Props) => {
 
                             <ChartContainer
                                 config={chartConfig}
-                                className="h-[300px] w-full mt-5"
+                                className="h-[320px] w-full"
                             >
 
                                 <BarChart
                                     accessibilityLayer
-                                    data={websiteAnalytics?.referrals || []}
+                                    data={
+                                        websiteAnalytics?.referrals || []
+                                    }
                                     layout="vertical"
                                     margin={{
                                         left: 20,
-                                        right: 20,
+                                        right: 40,
+                                        top: 10,
+                                        bottom: 10,
                                     }}
                                 >
 
@@ -117,10 +163,7 @@ const SourceWidget = ({ websiteAnalytics, loading }: Props) => {
                                     <YAxis
                                         dataKey="domainName"
                                         type="category"
-                                        tickLine={false}
-                                        axisLine={false}
-                                        tickMargin={10}
-                                        width={80}
+                                        hide
                                     />
 
                                     <XAxis
@@ -139,15 +182,22 @@ const SourceWidget = ({ websiteAnalytics, loading }: Props) => {
                                     <Bar
                                         dataKey="uv"
                                         fill="var(--primary)"
-                                        radius={8}
-                                        opacity={0.7}
+                                        radius={10}
                                     >
+
+                                        <LabelList
+                                            dataKey="domainName"
+                                            position="insideLeft"
+                                            content={
+                                                <ReferralLabel />
+                                            }
+                                        />
 
                                         <LabelList
                                             dataKey="uv"
                                             position="right"
+                                            fill="currentColor"
                                             fontSize={12}
-                                            content={<BarLabelWithImage />}
                                         />
 
                                     </Bar>
@@ -158,82 +208,87 @@ const SourceWidget = ({ websiteAnalytics, loading }: Props) => {
 
                         </TabsContent>
 
-                        {/* REFERRAL TAB */}
+                        {/* REF PARAMS TAB */}
                         <TabsContent value="referral">
 
-                            <div className="mt-5 text-sm text-muted-foreground">
-                                <ChartContainer
-                                    config={chartConfig}
-                                    className="h-[300px] w-full mt-5"
+                            <ChartContainer
+                                config={chartConfig}
+                                className="h-[320px] w-full"
+                            >
+
+                                <BarChart
+                                    accessibilityLayer
+                                    data={
+                                        websiteAnalytics?.refParams || []
+                                    }
+                                    layout="vertical"
+                                    margin={{
+                                        left: 20,
+                                        right: 40,
+                                        top: 10,
+                                        bottom: 10,
+                                    }}
                                 >
 
-                                    <BarChart
-                                        accessibilityLayer
-                                        data={websiteAnalytics?.refParams || []}
-                                        layout="vertical"
-                                        margin={{
-                                            left: 20,
-                                            right: 20,
-                                        }}
+                                    <CartesianGrid
+                                        horizontal={false}
+                                    />
+
+                                    <YAxis
+                                        dataKey="name"
+                                        type="category"
+                                        hide
+                                    />
+
+                                    <XAxis
+                                        dataKey="uv"
+                                        type="number"
+                                        hide
+                                    />
+
+                                    <ChartTooltip
+                                        cursor={false}
+                                        content={
+                                            <ChartTooltipContent />
+                                        }
+                                    />
+
+                                    <Bar
+                                        dataKey="uv"
+                                        fill="var(--primary)"
+                                        radius={10}
                                     >
 
-                                        <CartesianGrid
-                                            horizontal={false}
-                                        />
-
-                                        <YAxis
+                                        <LabelList
                                             dataKey="name"
-                                            type="category"
-                                            tickLine={false}
-                                            axisLine={false}
-                                            tickMargin={10}
-                                            width={80}
-                                        />
-
-                                        <XAxis
-                                            dataKey="uv"
-                                            type="number"
-                                            hide
-                                        />
-
-                                        <ChartTooltip
-                                            cursor={false}
+                                            position="insideLeft"
                                             content={
-                                                <ChartTooltipContent />
+                                                <RefParamLabel />
                                             }
                                         />
 
-                                        <Bar
+                                        <LabelList
                                             dataKey="uv"
-                                            fill="var(--primary)"
-                                            radius={8}
-                                            opacity={0.7}
-                                        >
+                                            position="right"
+                                            fill="currentColor"
+                                            fontSize={12}
+                                        />
 
-                                            <LabelList
-                                                dataKey="uv"
-                                                position="right"
-                                                fontSize={12}
-                                                content={<BarLabelWithImage />}
-                                            />
+                                    </Bar>
 
-                                        </Bar>
+                                </BarChart>
 
-                                    </BarChart>
-
-                                </ChartContainer>
-
-
-                            </div>
+                            </ChartContainer>
 
                         </TabsContent>
 
                     </Tabs>
 
                 </CardContent>
+
             </Card>
         </div>
-    )
-}
+    );
+};
 
-export default SourceWidget
+export default SourceWidget;
