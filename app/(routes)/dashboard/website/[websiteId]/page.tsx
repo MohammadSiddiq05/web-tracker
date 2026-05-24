@@ -47,8 +47,8 @@ const WebsiteDetail = () => {
 
     return (
         <div className="mt-10">
-            <FormInput websiteList={websiteList} setFormData={setFormData} />
-            <PageViewAnalytic websiteInfo={websiteInfo} loading={loading} analyticType={formData?.analyticType} />
+            <FormInput websiteList={websiteList} setFormData={setFormData} setReloadData={()=>GetWebsiteAnalyticDetail()} />
+            <PageViewAnalytic websiteInfo={websiteInfo} loading={loading} analyticType={formData?.analyticType}  />
         </div>
     )
 }
