@@ -1,97 +1,101 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Copy, Check } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useState } from "react";
+
+import { Copy, Check } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
+import { Separator } from "@/components/ui/separator";
+
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import Link from "next/link";
+import { toast } from "sonner";
 
 type Props = {
-  websiteId: string
-  domain: string
-}
+  websiteId: string;
+  domain: string;
+};
 
 const ScriptSection = ({ websiteId, domain }: Props) => {
+  const script = `<script
+  defer
+  data-website-id="${websiteId}"
+  data-domain="${domain}"
+    src="${process.env.NEXT_PUBLIC_HOST_URL}/analytics.js">
+</script>`;
 
-  const [copied, setCopied] = useState(false)
-  const router = useRouter()
-
-  const scriptTag = `<script
-    defer
-    data-website-id='${websiteId}'
-    data-domain='${domain}'
-    src="http://localhost:3000/analytics.js">
-</script>`
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(scriptTag)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(script);
+    toast.success("Script copied to clipboard");
+  };
 
   return (
     <div className="flex justify-center items-center px-4 py-10">
-
-      <div className="w-full max-w-lg space-y-5">
-
-        {/* Heading */}
-        <div>
-          <h2 className="text-xl font-bold text-gray-800">
+      <Card className="w-full max-w-3xl rounded-3xl shadow-sm border">
+        {/* Header */}
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold">
             Install the WebTrack Script
-          </h2>
-          <p className="text-sm text-gray-500 mt-1">
-            Copy and paste the following script into the &lt;head&gt; section of your website's HTML.
-          </p>
-        </div>
+          </CardTitle>
 
-        {/* Script Box */}
-        <div className="relative bg-gray-900 rounded-2xl p-5">
+          <CardDescription>
+            <p>
+              Copy and paste the following script inside your website&apos;s{" "}
+              {"<head>"} tag.
+            </p>
+          </CardDescription>
+        </CardHeader>
 
-          {/* Copy Icon Button */}
-          <button
-            onClick={handleCopy}
-            className="absolute top-4 right-4 text-gray-400 hover:text-white transition"
-          >
-            {copied
-              ? <Check size={18} className="text-green-400" />
-              : <Copy size={18} />
-            }
-          </button>
+        <Separator />
 
-          {/* Script Text */}
-          <pre className="text-sm leading-7 font-mono whitespace-pre-wrap break-all">
-            <span className="text-white">{'<script'}</span>
-            {'\n    '}
-            <span className="text-white">defer</span>
-            {'\n    '}
-            <span className="text-white">{'data-website-id=\''}</span>
-            <span className="text-yellow-400">{websiteId}</span>
-            <span className="text-white">{"'"}</span>
-            {'\n    '}
-            <span className="text-white">{'data-domain=\''}</span>
-            <span className="text-green-400">{domain}</span>
-            <span className="text-white">{"'"}</span>
-            {'\n    '}
-            <span className="text-white">{'src="'}</span>
-            <span className="text-blue-400">http://localhost:3000/analytics.js</span>
-            <span className="text-white">{'>"'}</span>
-            {'\n'}
-            <span className="text-white">{'</script>'}</span>
-          </pre>
+        {/* Content */}
+        <CardContent>
+          {/* Code Block */}
+          <div className="w-full mt-5 relative">
+            <SyntaxHighlighter
+              language="javascript"
+              style={oneDark}
+              customStyle={{
+                borderRadius: 16,
+                padding: 20,
+                fontSize: 14,
+              }}
+            >
+              {script}
+            </SyntaxHighlighter>
 
-        </div>
+            {/* Copy Button */}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleCopy}
+              className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm"
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
+          </div>
 
-        {/* Button */}
-        <Button
-          className="w-full h-12 rounded-2xl text-base font-semibold bg-blue-600 hover:bg-blue-700"
-          onClick={() => router.push('/dashboard')}
-        >
-          Ok, I've installed the script
-        </Button>
-
-      </div>
-
+          {/* Action Button */}
+          <Link href={"/dashboard"}>
+            <Button className="w-full mt-7 h-11 rounded-xl">
+              Ok, I&apos;ve Installed the Script
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
     </div>
-  )
-}
+  );
+};
 
-export default ScriptSection
+export default ScriptSection;

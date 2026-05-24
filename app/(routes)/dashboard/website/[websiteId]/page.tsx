@@ -1,5 +1,5 @@
 "use client";
-import { LiveUser, WebsiteInfoType, WebsiteType } from "@/configs/type";
+import { LiveUserType, WebsiteInfoType, WebsiteType } from "@/configs/type";
 import axios from "axios";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -12,7 +12,7 @@ const WebsiteDetail = () => {
   const [websiteList, setWebsiteList] = useState<WebsiteType[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [websiteInfo, setWebsiteInfo] = useState<WebsiteInfoType | null>();
-  const [liveUser, setLiveUser] = useState<LiveUser[]>([]);
+  const [liveUser, setLiveUser] = useState<LiveUserType[]>([]);
   const [formData, setFormData] = useState<any>({
     analyticType: "hourly",
     fromDate: new Date(),
@@ -52,7 +52,7 @@ const WebsiteDetail = () => {
   }, [formData?.fromDate, formData?.toDate]);
 
   return (
-    <div className="mt-10">
+    <div className="mt-10 p-10">
       <FormInput
         websiteList={websiteList}
         setFormData={setFormData}
