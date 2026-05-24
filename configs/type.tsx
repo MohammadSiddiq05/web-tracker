@@ -18,7 +18,14 @@ export type AnalyticsType = {
     totalSessions: number,
     totalVisitors: number,
     hourlyVisitors: HourlyVisitorsType[],
-    dailyVisitors : DailyVisitorsType[]
+    dailyVisitors : DailyVisitorsType[],
+    referrals : ReferralsType[],
+    refParams : RefParamsType[] 
+}
+
+export type RefParamsType = {
+    name : string,
+    uv : number
 }
 
 export type HourlyVisitorsType = {
@@ -32,3 +39,12 @@ export type DailyVisitorsType = {
     count : number,
     date : string
 }
+
+export type ReferralsType = {
+    domain : string,
+    uv: number,
+    name : string
+}
+
+
+export const IMAGE_URL_FOR_DOMAINS = 'https://icons.duckduckgo.com/ip3/<domain>.ico'

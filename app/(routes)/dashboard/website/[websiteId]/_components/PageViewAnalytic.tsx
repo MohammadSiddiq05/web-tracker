@@ -100,13 +100,31 @@ const PageViewAnalytic = ({ websiteInfo, loading, analyticType }: Props) => {
                             <CartesianGrid vertical={false} />
 
                             <XAxis
-                                dataKey={analyticType=="hourly"?"hourlyLabel":"date"}
+                                dataKey={
+                                    analyticType === "hourly"
+                                        ? "hourLabel"
+                                        : "date"
+                                }
                                 tickLine={false}
                                 axisLine={false}
                                 tickMargin={8}
-                                tickFormatter={(value) => value.slice(0, 3)}
+                                interval={0}
+                                tickFormatter={(value) => {
+
+                                    if (analyticType === "hourly") {
+                                        return value;
+                                    }
+
+                                    return value.slice(5);
+                                }}
                             />
 
+                            <YAxis
+                                tickLine={false}
+                                axisLine={false}
+                                tickMargin={8}
+                                allowDecimals={false}
+                            />
                             <Area
                                 dataKey="count"
                                 type="natural"
@@ -120,8 +138,8 @@ const PageViewAnalytic = ({ websiteInfo, loading, analyticType }: Props) => {
                 </CardContent>
 
             </Card> : <div>
-                <Skeleton className="w-full h-80 rounded-2xl"/>
-                </div>}
+                <Skeleton className="w-full h-80 rounded-2xl" />
+            </div>}
         </div>
     );
 };
