@@ -9,7 +9,6 @@ import {
     ChevronDownIcon,
     RefreshCcw,
     Settings,
-    Settings2Icon,
 } from "lucide-react";
 
 import { useParams } from "next/navigation";
@@ -40,10 +39,11 @@ import { DateRange } from "react-day-picker";
 
 type Props = {
     websiteList: WebsiteType[];
+    setFormData: any
 };
-
 const FormInput = ({
     websiteList,
+    setFormData,
 }: Props) => {
 
     const { websiteId } = useParams();
@@ -93,6 +93,20 @@ const FormInput = ({
         });
     };
 
+    React.useEffect(() => {
+
+        setFormData({
+            analyticType : analyticType,
+            fromDate: date?.from ?? today,
+            toDate: date?.to ?? today,
+        });
+
+    }, [
+        analyticType,
+        date,
+        setFormData
+    ]);
+
     return (
 
         <div className="flex items-center gap-4 flex-wrap justify-between">
@@ -123,9 +137,9 @@ const FormInput = ({
                                 (website) => (
 
                                     <SelectItem
-                                        key={website.id}
+                                        key={website?.id}
                                         value={
-                                            website.websiteId
+                                            website?.websiteId
                                         }
                                     >
 

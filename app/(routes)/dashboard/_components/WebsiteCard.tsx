@@ -53,7 +53,7 @@ const WebsiteCard = ({ websiteInfo }: Props) => {
 
   const [copied, setCopied] = useState(false);
 
-  const scriptTag = `< script src = "${window.location.origin}/analytic.js" data - website - id="${websiteInfo?.website?.domain}" data - domain="${websiteInfo?.website?.domain}" defer ></ > `;
+ const scriptTag = `<script src="${window.location.origin}/analytic.js" data-website-id="${websiteInfo?.website?.websiteId}" data-domain="${websiteInfo?.website?.domain}" defer></script>`
 
   console.log("hourlyData:", websiteInfo?.analytics?.hourlyVisitors);
   console.log("chartData:", chartData);
@@ -115,7 +115,7 @@ const WebsiteCard = ({ websiteInfo }: Props) => {
               <CartesianGrid vertical={false} />
 
               <XAxis
-                dataKey="month"
+                dataKey="data"
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
@@ -136,7 +136,7 @@ const WebsiteCard = ({ websiteInfo }: Props) => {
 
         <CardFooter className="flex flex-col gap-3 items-start">
           <h2 className="text-sm">
-            <strong>{websiteInfo?.analytics?.last24hVisitors}</strong> Visitors
+            <strong>{websiteInfo?.analytics?.totalVisitors}</strong> Visitors
           </h2>
         </CardFooter>
       </Card>
