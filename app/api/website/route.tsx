@@ -48,7 +48,70 @@ export const POST = async (req: NextRequest) => {
   }
 };
 
+export const DELETE = async (req: NextRequest) => {
+  try {
+    const { websiteId } = await req.json();
 
+    const user = await currentUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const website = await db
+      .select()
+      .from(websitesTable)
+      .where(
+        and(
+          eq(websitesTable.websiteId, websiteId),
+          eq(
+            websitesTable.userEmail,
+            user.primaryEmailAddress?.emailAddress as string
+          )
+        )
+      );
+
+    if (website.length === 0) {
+      return NextResponse.json(
+        { error: "Website not found" },
+        { status: 404 }
+      );
+    }
+
+    await db
+      .delete(pageViewTable)
+      .where(
+        eq(pageViewTable.websiteId, websiteId)
+      );
+
+    await db
+      .delete(websitesTable)
+      .where(
+        eq(websitesTable.websiteId, websiteId)
+      );
+
+    return NextResponse.json({
+      success: true,
+      message: "Website deleted successfully",
+    });
+
+  } catch (error: any) {
+
+    console.error("DELETE ERROR:", error);
+
+    return NextResponse.json(
+      {
+        error: "Something went wrong",
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+};
 
 const getSafeTimeZone = (tz?: string | null) => {
   if (!tz) return "UTC";
@@ -100,7 +163,7 @@ export async function GET(req: NextRequest) {
             eq(websitesTable?.websiteId, websiteId)
           )
         );
-      return NextResponse.json(websites);
+      return NextResponse.json(websites[0]);
     }
 
     const websites = await db
