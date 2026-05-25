@@ -193,11 +193,11 @@ export async function GET(req: NextRequest) {
   const formatSimple = (map: Record<string, number>) =>
     Object.entries(map).map(([name, uv]) => ({ name, uv }));
 
-  const formatWithImage = (map: Record<string, number>) =>
+ const formatWithImage = (map: Record<string, number>) =>
     Object.entries(map).map(([name, uv]) => ({
-      name,
-      uv,
-      image: `/${name.toLowerCase()}.png`,
+        name,
+        uv,
+        image: `/icons/${name.toLowerCase()}.png`,
     }));
 
   const formatCountries = (
@@ -208,7 +208,7 @@ export async function GET(req: NextRequest) {
       name,
       uv,
       image: codeMap[name]
-        ? `https://flagsapi.com/${codeMap[name]}/flat/64.png`
+        ? `https://flagcdn.com/w40/${codeMap[name].toLowerCase()}.png`
         : "/country.png",
     }));
 
@@ -438,4 +438,33 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json(result);
+}
+
+
+export async function PATCH(req: NextRequest) {
+    try {
+        const user = await currentUser();
+
+        if (!user) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const { websiteId, domain } = await req.json();
+
+        const updated = await db
+            .update(websitesTable)
+            .set({ domain })
+            .where(
+                and(
+                    eq(websitesTable.websiteId, websiteId),
+                    eq(websitesTable.userEmail, user.primaryEmailAddress?.emailAddress as string)
+                )
+            )
+            .returning();
+
+        return NextResponse.json(updated[0]);
+
+    } catch (error: any) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 }
