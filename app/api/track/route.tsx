@@ -24,6 +24,34 @@ export async function OPTIONS(req: Request) {
     });
 }
 
+
+function getClientIP(req: Request) {
+    // 1. Vercel-specific header (MOST IMPORTANT)
+    const vercelIP = req.headers.get("x-vercel-forwarded-for");
+
+    console.log(vercelIP);
+
+    if (vercelIP) {
+        return vercelIP.split(",")[0].trim();
+    }
+
+    // 2. Standard proxy header
+    const xff = req.headers.get("x-forwarded-for");
+
+    if (xff) {
+        return xff.split(",")[0].trim();
+    }
+
+    // 3. Fallback
+    const realIp = req.headers.get("x-real-ip");
+
+    if (realIp) {
+        return realIp;
+    }
+
+    return null;
+}
+
 export const POST = async (req: NextRequest) => {
     const body = await req.json();
 
@@ -32,17 +60,21 @@ export const POST = async (req: NextRequest) => {
     const osInfo = parser.getOS()?.name;
     const browserInfo = parser.getBrowser()?.name;
 
-    let ip =
-        req.headers.get("x-forwarded-for")?.split(",")[0] ||
-        req.headers.get("x-real-ip");
+    const ip = getClientIP(req) || "71.71.22.54";
 
-    if (!ip || ip === "::1") {
-        ip = "39.37.128.1";
+    console.log(ip);
+
+    let geoInfo = null;
+
+    if (
+        ip &&
+        !ip.startsWith("10.") &&
+        !ip.startsWith("192.168")
+    ) {
+        const geoRes = await fetch(`http://ip-api.com/json/${ip}`);
+
+        geoInfo = await geoRes.json();
     }
-
-    const geoRes = await fetch(`http://ip-api.com/json/${ip}`);
-    const geoInfo = await geoRes.json();
-
     const websiteRecord = await db
         .select()
         .from(websitesTable)
