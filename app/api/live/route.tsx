@@ -10,6 +10,24 @@ import { db } from "@/configs/db";
 import { liveUserTable } from "@/configs/schema";
 
 
+const CORS_HEADERS = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+};
+
+export async function OPTIONS(req: Request) {
+    const origin = req.headers.get("origin") || "*";
+
+    return new NextResponse(null, {
+        status: 200,
+        headers: {
+            "Access-Control-Allow-Origin": origin,
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type",
+        },
+    });
+}
 
 export const POST = async (req: NextRequest) => {
 
@@ -130,9 +148,14 @@ export const POST = async (req: NextRequest) => {
 
             });
 
-        return NextResponse.json({
-            status: "ok",
-        });
+        return NextResponse.json(
+            {
+                message: "Data received successfully",
+            },
+            {
+                headers: CORS_HEADERS,
+            }
+        );
 
     } catch (err: any) {
 
@@ -144,7 +167,7 @@ export const POST = async (req: NextRequest) => {
                 message: err.message,
             },
             {
-                status: 500,
+                headers: CORS_HEADERS,
             }
         );
     }
