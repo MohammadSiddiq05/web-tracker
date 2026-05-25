@@ -35,8 +35,8 @@ export default function RootLayout({
         <head>
           <script
             defer
-            data-website-id="a4ca1091-c0a5-417c-ab49-b0049395c542"
-            data-domain="https://ubiquitous-haupia-b37e03.netlify.app"
+            data-website-id="8c28a862-c8e5-48bc-a039-26adf27465f7"
+            data-domain="https://bank-transaction-system-topaz.vercel.app"
             src="https://web-tracker-main-2af835e.kuberns.cloud/analytics.js">
           </script>
         </head>
