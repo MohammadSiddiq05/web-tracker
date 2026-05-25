@@ -35,9 +35,9 @@ export default function RootLayout({
         <head>
           <script
             defer
-            data-website-id="f89d6cd5-8fff-4a26-b9cc-927bfeb59a5d"
-            data-domain="https://social-media-react-dun.vercel.app"
-            src="https://web-tracker-main-2af835e.kuberns.cloud/analytics.js">
+            data-website-id="a4ca1091-c0a5-417c-ab49-b0049395c542"
+            data-domain="https://ubiquitous-haupia-b37e03.netlify.app"
+            src="http://localhost:3000//analytics.js">
           </script>
         </head>
         <body className={AppFont.className}>
