@@ -63,21 +63,7 @@ export const POST = async (req: NextRequest) => {
                 os: osInfo,
                 browser: browserInfo,
             })
-            .onConflictDoUpdate({
-                target: liveUserTable.visitorId,
-                set: {
-                    last_seen,
-                    city: geoInfo.city || "",
-                    region: geoInfo.regionName || "",
-                    country: geoInfo.country || "",
-                    countryCode: geoInfo.countryCode || "",
-                    lat: geoInfo.lat?.toString() || "",
-                    lng: geoInfo.lon?.toString() || "",
-                    device: deviceInfo,
-                    os: osInfo,
-                    browser: browserInfo,
-                },
-            });
+
 
         return NextResponse.json(
             { message: "Data received successfully" },
@@ -105,7 +91,7 @@ export const GET = async (req: NextRequest) => {
         }
 
         const now = Date.now();
-        const threshold = now - 30_000; // 30 seconds
+        const threshold = now - 30_000; 
 
         const allUsers = await db
             .select()

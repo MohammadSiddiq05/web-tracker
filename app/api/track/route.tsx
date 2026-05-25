@@ -26,7 +26,6 @@ export async function OPTIONS(req: Request) {
 
 
 function getClientIP(req: Request) {
-    // 1. Vercel-specific header (MOST IMPORTANT)
     const vercelIP = req.headers.get("x-vercel-forwarded-for");
 
     console.log(vercelIP);
@@ -35,7 +34,6 @@ function getClientIP(req: Request) {
         return vercelIP.split(",")[0].trim();
     }
 
-    // 2. Standard proxy header
     const xff = req.headers.get("x-forwarded-for");
 
     if (xff) {
@@ -60,6 +58,8 @@ export const POST = async (req: NextRequest) => {
     const osInfo = parser.getOS()?.name;
     const browserInfo = parser.getBrowser()?.name;
 
+    console.log();
+    
     const ip = getClientIP(req) || "71.71.22.54";
 
     console.log(ip);
@@ -71,14 +71,14 @@ export const POST = async (req: NextRequest) => {
         !ip.startsWith("10.") &&
         !ip.startsWith("192.168")
     ) {
-        const geoRes = await fetch(`http://ip-api.com/json/${ip}`);
+        const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
 
         geoInfo = await geoRes.json();
     }
     const websiteRecord = await db
         .select()
         .from(websitesTable)
-        .where(eq(websitesTable.domain, body.domain))
+        .where(eq(websitesTable.websiteId, body.websiteId))
         .limit(1);
 
     if (!websiteRecord[0]) {
@@ -112,10 +112,10 @@ export const POST = async (req: NextRequest) => {
                 device: deviceInfo,
                 os: osInfo,
                 browser: browserInfo,
-                city: geoInfo.city,
-                region: geoInfo.regionName,
-                country: geoInfo.country,
-                countryCode: geoInfo.countryCode,
+                city: geoInfo?.city || "",
+                region: geoInfo?.region || "",
+                country: geoInfo?.country_name || "",
+                countryCode: geoInfo?.country_code || "",
                 ipAddress: ip || "",
                 refParams: JSON.stringify(body.refParams),
             })

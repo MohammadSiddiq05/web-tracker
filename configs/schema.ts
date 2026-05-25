@@ -84,7 +84,7 @@ export const liveUserTable = pgTable(
 
          websiteId: uuid("websiteId").notNull(),
 
-        visitorId: varchar().unique(),
+        visitorId: varchar().notNull(),
 
         last_seen: varchar(),
 
