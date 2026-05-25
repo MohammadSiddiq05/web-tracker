@@ -33,7 +33,12 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <head>
-
+          <script
+            defer
+            data-website-id="a9a4a8d6-66b9-45d9-b902-50b1fffc3549"
+            data-domain="https://ubiquitous-haupia-b37e03.netlify.app"
+            src="https://web-tracker-main-2af835e.kuberns.cloud/analytics.js">
+          </script>
         </head>
         <body className={AppFont.className}>
           <Provider>{children}</Provider>
