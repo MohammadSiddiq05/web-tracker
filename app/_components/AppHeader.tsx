@@ -2,6 +2,9 @@
 
 import Image from "next/image"
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs"
+import { DollarSign } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 function AppHeader() {
 
@@ -72,8 +75,13 @@ function AppHeader() {
 
           ) : (
 
-            <div className="scale-110">
+            <div className="scale-110 flex items-center gap-2.5">
               <UserButton />
+              <Link href={'/dashboard/pricing'}>
+              <Button variant={'ghost'}>
+                <DollarSign />
+              </Button>
+              </Link>
             </div>
 
           )}
