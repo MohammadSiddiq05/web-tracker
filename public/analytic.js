@@ -7,7 +7,7 @@
         );
     }
 
-    const BASE_URL = document.currentScript.src.replace('/analytic.js', '')
+   
 
 
     const session_duration = 12 * 60 * 50 * 1000;
@@ -65,7 +65,7 @@
         );
 
     fetch(
-        `${BASE_URL}/api/track`,
+        `https://web-tracker-main-2af835e.kuberns.cloud/api/track`,
         {
             method: 'POST',
             headers: {
@@ -101,7 +101,7 @@
             Math.floor(Date.now() / 1000) - activeStartTime;
 
         fetch(
-            `${BASE_URL}/api/track`,
+            `https://web-tracker-main-2af835e.kuberns.cloud/api/track`,
             {
                 method: 'POST',
                 keepalive: true,
@@ -132,7 +132,7 @@
     const sendLivePing = async () => {
 
         await fetch(
-            "http://localhost:3000/api/live",
+            "https://web-tracker-main-2af835e.kuberns.cloud/api/live",
             {
                 method: "POST",
 
