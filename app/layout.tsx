@@ -34,11 +34,11 @@ export default function RootLayout({
       <html lang="en">
         <head>
           <script
-            src="http://localhost:3000/analytic.js"
-            data-website-id="68efda4f-3c2c-4e15-ba6f-003bf0ac8be4"
-            data-domain="https://google.com"
             defer
-          ></script>
+            data-website-id="485c0a88-ab0d-43f1-a431-807f990c7ec2"
+            data-domain="https://ubiquitous-haupia-b37e03.netlify.app"
+            src="http://localhost:3000/analytics.js">
+          </script>
         </head>
         <body className={AppFont.className}>
           <Provider>{children}</Provider>
