@@ -35,7 +35,7 @@ export default function RootLayout({
         <head>
           <script
             defer
-            data-website-id="a9a4a8d6-66b9-45d9-b902-50b1fffc3549"
+            data-website-id="a4ca1091-c0a5-417c-ab49-b0049395c542"
             data-domain="https://ubiquitous-haupia-b37e03.netlify.app"
             src="https://web-tracker-main-2af835e.kuberns.cloud/analytics.js">
           </script>
