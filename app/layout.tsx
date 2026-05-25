@@ -33,12 +33,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <head>
-          <script
-            defer
-            data-website-id="8c28a862-c8e5-48bc-a039-26adf27465f7"
-            data-domain="https://bank-transaction-system-topaz.vercel.app"
-            src="https://web-tracker-main-2af835e.kuberns.cloud/analytics.js">
-          </script>
+        
         </head>
         <body className={AppFont.className}>
           <Provider>{children}</Provider>
