@@ -55,8 +55,6 @@ const WebsiteCard = ({ websiteInfo }: Props) => {
 
  const scriptTag = `<script src="${window.location.origin}/analytic.js" data-website-id="${websiteInfo?.website?.websiteId}" data-domain="${websiteInfo?.website?.domain}" defer></script>`
 
-  console.log("hourlyData:", websiteInfo?.analytics?.hourlyVisitors);
-  console.log("chartData:", chartData);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(scriptTag);

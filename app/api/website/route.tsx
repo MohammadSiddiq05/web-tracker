@@ -1,5 +1,5 @@
 import { db } from "@/configs/db";
-import { currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { pageViewTable, websitesTable } from "@/configs/schema";
@@ -8,11 +8,30 @@ import { toZonedTime } from "date-fns-tz";
 export const POST = async (req: NextRequest) => {
   try {
     const { domain, timezone, enableLocalhostTracking } = await req.json();
-
+    const {has} = await auth();
     const user = await currentUser();
+    const hasPremiumAccess = has({ plan: 'monthly' })
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!hasPremiumAccess) {
+      const result = await db
+        .select()
+        .from(websitesTable)
+        .where(
+          eq(
+            websitesTable.userEmail,
+            user?.primaryEmailAddress?.emailAddress as string
+          )
+        );
+
+      if (result.length > 0) {
+        return NextResponse.json({
+          msg: "limit",
+        });
+      }
     }
 
     const esxitingDomain = await db
@@ -193,11 +212,11 @@ export async function GET(req: NextRequest) {
   const formatSimple = (map: Record<string, number>) =>
     Object.entries(map).map(([name, uv]) => ({ name, uv }));
 
- const formatWithImage = (map: Record<string, number>) =>
+  const formatWithImage = (map: Record<string, number>) =>
     Object.entries(map).map(([name, uv]) => ({
-        name,
-        uv,
-        image: `/icons/${name.toLowerCase()}.png`,
+      name,
+      uv,
+      image: `/icons/${name.toLowerCase()}.png`,
     }));
 
   const formatCountries = (
@@ -442,29 +461,29 @@ export async function GET(req: NextRequest) {
 
 
 export async function PATCH(req: NextRequest) {
-    try {
-        const user = await currentUser();
+  try {
+    const user = await currentUser();
 
-        if (!user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
-
-        const { websiteId, domain } = await req.json();
-
-        const updated = await db
-            .update(websitesTable)
-            .set({ domain })
-            .where(
-                and(
-                    eq(websitesTable.websiteId, websiteId),
-                    eq(websitesTable.userEmail, user.primaryEmailAddress?.emailAddress as string)
-                )
-            )
-            .returning();
-
-        return NextResponse.json(updated[0]);
-
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const { websiteId, domain } = await req.json();
+
+    const updated = await db
+      .update(websitesTable)
+      .set({ domain })
+      .where(
+        and(
+          eq(websitesTable.websiteId, websiteId),
+          eq(websitesTable.userEmail, user.primaryEmailAddress?.emailAddress as string)
+        )
+      )
+      .returning();
+
+    return NextResponse.json(updated[0]);
+
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 }

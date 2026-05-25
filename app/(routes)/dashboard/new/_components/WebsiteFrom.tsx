@@ -32,6 +32,7 @@ import { Globe, Loader2Icon, Plus, ShieldCheck } from "lucide-react"
 import { useState } from "react"
 
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const WebsiteForm = () => {
 
@@ -53,6 +54,12 @@ const WebsiteForm = () => {
         timezone,
         enableLocalhostTracking
       })
+
+      if(result?.data?.msg=='limit'){
+        toast.error("Limit exceeded, Join monthly plan");
+        setLoading(false)
+        return;
+      }
 
       const websiteId = result?.data?.[0]?.websiteId
       const websiteDomain = result?.data?.[0]?.domain
