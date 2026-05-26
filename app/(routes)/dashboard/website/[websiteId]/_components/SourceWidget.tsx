@@ -8,7 +8,6 @@ import {
     Flag,
 } from "lucide-react";
 
-
 import { Card, CardContent } from "@/components/ui/card";
 
 import {
@@ -53,11 +52,8 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 const SourceWidget = ({ websiteAnalytics }: Props) => {
-
-    console.log("REFERRALS:", websiteAnalytics?.referrals);
     console.log("COUNTRIES:", websiteAnalytics?.countries);
-    console.log("DEVICES:", websiteAnalytics?.devices);
-    // CUSTOM LABEL
+    console.log("CITIES:", websiteAnalytics?.cities);
     const CustomLabel = (props: any, type: "domain" | "image" | "text") => {
         const { x, y, height, payload } = props;
 
@@ -81,12 +77,13 @@ const SourceWidget = ({ websiteAnalytics }: Props) => {
         }
 
         const imgSize = 20;
-        const textX = type !== "text" ? imgSize + 10 : 0;
+        const hasImage = type !== "text" && !!imageUrl;
+        const textX = hasImage ? imgSize + 10 : 0;
         const centerY = y + height / 2;
 
         return (
             <g>
-                {type !== "text" && imageUrl && (
+                {hasImage && (
                     <image
                         href={imageUrl}
                         x={x + 10}
@@ -107,6 +104,7 @@ const SourceWidget = ({ websiteAnalytics }: Props) => {
             </g>
         );
     };
+
     // REUSABLE CHART
     const RenderChart = ({
         data,
@@ -134,8 +132,6 @@ const SourceWidget = ({ websiteAnalytics }: Props) => {
                     }}
                     barCategoryGap={14}
                 >
-
-                    {/* GRADIENT */}
                     <defs>
                         <linearGradient
                             id="barGradient"
@@ -149,7 +145,6 @@ const SourceWidget = ({ websiteAnalytics }: Props) => {
                                 stopColor="var(--primary)"
                                 stopOpacity={1}
                             />
-
                             <stop
                                 offset="100%"
                                 stopColor="var(--primary)"
@@ -186,7 +181,6 @@ const SourceWidget = ({ websiteAnalytics }: Props) => {
                         fill="url(#barGradient)"
                         radius={[14, 14, 14, 14]}
                     >
-
                         {/* LEFT LABEL */}
                         <LabelList
                             dataKey={dataKey}
@@ -204,7 +198,6 @@ const SourceWidget = ({ websiteAnalytics }: Props) => {
                             fontSize={12}
                             fontWeight={700}
                         />
-
                     </Bar>
 
                 </BarChart>
@@ -217,63 +210,58 @@ const SourceWidget = ({ websiteAnalytics }: Props) => {
 
             <Card
                 className="
-          rounded-[30px]
-          border
-          shadow-sm
-          overflow-hidden
-        "
+                    rounded-[30px]
+                    border
+                    shadow-sm
+                    overflow-hidden
+                "
             >
-
                 {/* HEADER */}
                 <div
                     className="
-            flex
-            items-center
-            justify-between
-            px-6
-            pt-6
-          "
+                        flex
+                        items-center
+                        justify-between
+                        px-6
+                        pt-6
+                    "
                 >
-
                     <div>
-
                         <h2
                             className="
-                text-2xl
-                font-bold
-                tracking-tight
-              "
+                                text-2xl
+                                font-bold
+                                tracking-tight
+                            "
                         >
                             Traffic Insights
                         </h2>
 
                         <p
                             className="
-                text-sm
-                text-muted-foreground
-                mt-1
-              "
+                                text-sm
+                                text-muted-foreground
+                                mt-1
+                            "
                         >
                             Analyze visitors, traffic sources,
                             countries and devices.
                         </p>
-
                     </div>
 
                     <div
                         className="
-              h-14
-              w-14
-              rounded-2xl
-              bg-primary/10
-              flex
-              items-center
-              justify-center
-            "
+                            h-14
+                            w-14
+                            rounded-2xl
+                            bg-primary/10
+                            flex
+                            items-center
+                            justify-center
+                        "
                     >
                         <Globe className="h-7 w-7 text-primary" />
                     </div>
-
                 </div>
 
                 <CardContent className="p-6">
@@ -282,20 +270,18 @@ const SourceWidget = ({ websiteAnalytics }: Props) => {
                         defaultValue="source"
                         className="w-full"
                     >
-
                         {/* TAB LIST */}
                         <TabsList
                             className="
-                grid
-                grid-cols-5
-                w-full
-                rounded-2xl
-                h-12
-                mb-6
-                bg-muted/60
-              "
+                                grid
+                                grid-cols-5
+                                w-full
+                                rounded-2xl
+                                h-12
+                                mb-6
+                                bg-muted/60
+                            "
                         >
-
                             <TabsTrigger
                                 value="source"
                                 className="rounded-xl gap-2"
@@ -335,7 +321,6 @@ const SourceWidget = ({ websiteAnalytics }: Props) => {
                                 <Monitor className="h-4 w-4" />
                                 Devices
                             </TabsTrigger>
-
                         </TabsList>
 
                         {/* SOURCES */}

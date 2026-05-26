@@ -135,7 +135,7 @@ const WebsiteSettings = () => {
             });
 
             toast.success("Domain updated successfully");
-            GetWebsiteDetail(); // ✅ refresh karo
+            GetWebsiteDetail();
 
         } catch (error) {
             toast.error("Failed to update domain");

@@ -214,9 +214,9 @@ export async function GET(req: NextRequest) {
 
   const formatWithImage = (map: Record<string, number>) =>
     Object.entries(map).map(([name, uv]) => ({
-      name,
-      uv,
-      image: `/icons/${name.toLowerCase()}.png`,
+        name,
+        uv,
+        image: "",
     }));
 
   const formatCountries = (
@@ -424,6 +424,11 @@ export async function GET(req: NextRequest) {
       const date = formatDateInTZ(local, siteTZ);
       dailyMap[date] ??= new Set();
       dailyMap[date].add(v.visitorId);
+       console.log("ROW:", {
+        country: v.country,
+        countryCode: v.countryCode,
+        city: v.city,
+    });
     });
 
     const dailyVisitors = Object.entries(dailyMap).map(([date, set]) => ({

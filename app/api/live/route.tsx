@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, eq, gt } from "drizzle-orm";
+import { and, eq, lt } from "drizzle-orm";
 import { UAParser } from "ua-parser-js";
 import { db } from "@/configs/db";
 import { liveUserTable } from "@/configs/schema";
@@ -62,7 +62,10 @@ export const POST = async (req: NextRequest) => {
                 device: deviceInfo,
                 os: osInfo,
                 browser: browserInfo,
-            })
+            }).onConflictDoUpdate({
+                target: [liveUserTable.visitorId, liveUserTable.websiteId],
+                set: { last_seen }
+            });
 
 
         return NextResponse.json(
@@ -91,16 +94,26 @@ export const GET = async (req: NextRequest) => {
         }
 
         const now = Date.now();
-        const threshold = now - 30_000; 
+        const threshold = now - 30_000;
 
         const allUsers = await db
             .select()
             .from(liveUserTable)
             .where(eq(liveUserTable.websiteId, websiteId));
 
-        const activeUsers = allUsers.filter(
-            (u) => Number(u.last_seen) >= threshold
-        );
+        await db
+            .delete(liveUserTable)
+            .where(
+                and(
+                    eq(liveUserTable.websiteId, websiteId),
+                    lt(liveUserTable.last_seen, threshold.toString())
+                )
+            );
+
+        const activeUsers = await db
+            .select()
+            .from(liveUserTable)
+            .where(eq(liveUserTable.websiteId, websiteId));
 
         return NextResponse.json(activeUsers, { headers: CORS_HEADERS });
 

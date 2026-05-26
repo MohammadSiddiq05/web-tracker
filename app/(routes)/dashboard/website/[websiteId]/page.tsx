@@ -30,7 +30,6 @@ const WebsiteDetail = () => {
         }
     }, [formData?.fromDate, formData?.toDate, websiteId]);
 
-    // ✅ Live user polling — har 10 second pe
     useEffect(() => {
         if (!websiteId) return;
 
@@ -64,6 +63,10 @@ const WebsiteDetail = () => {
                 `/api/website?websiteId=${websiteId}&from=${fromDate}&to=${toDate}`
             );
             setWebsiteInfo(websiteResult?.data[0]);
+
+            console.log("API RESPONSE:", websiteResult?.data);
+            console.log("ANALYTICS:", websiteResult?.data[0]?.analytics);
+            console.log("COUNTRIES:", websiteResult?.data[0]?.analytics?.countries);
         } catch (error) {
             console.error("Analytics fetch failed:", error);
         } finally {

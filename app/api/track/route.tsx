@@ -58,9 +58,8 @@ export const POST = async (req: NextRequest) => {
     const osInfo = parser.getOS()?.name;
     const browserInfo = parser.getBrowser()?.name;
 
-    console.log();
-    
-    const ip = getClientIP(req) || "71.71.22.54";
+
+    const ip = getClientIP(req);
 
     console.log(ip);
 
@@ -69,10 +68,12 @@ export const POST = async (req: NextRequest) => {
     if (
         ip &&
         !ip.startsWith("10.") &&
-        !ip.startsWith("192.168")
+        !ip.startsWith("192.168.") &&
+        !ip.startsWith("127.") &&
+        !ip.startsWith("::1") &&
+        ip !== "71.71.22.54"
     ) {
         const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
-
         geoInfo = await geoRes.json();
     }
     const websiteRecord = await db
