@@ -33,12 +33,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <head>
-          <script
-            defer
-            data-website-id="a4ca1091-c0a5-417c-ab49-b0049395c542"
-            data-domain="https://ubiquitous-haupia-b37e03.netlify.app"
-            src="http://localhost:3000//analytics.js">
-          </script>
+
         </head>
         <body className={AppFont.className}>
           <Provider>{children}</Provider>
