@@ -42,11 +42,76 @@ const chartConfig = {
     },
 } satisfies ChartConfig;
 
-const SourceWidget = ({ websiteAnalytics }: Props) => {
-    console.log("COUNTRIES:", websiteAnalytics?.countries);
-    console.log("CITIES:", websiteAnalytics?.cities);
-    const CustomLabel = (props: any, type: "domain" | "image" | "text") => {
-        const { x, y, height, payload } = props;
+// Device icons map
+const DEVICE_ICONS: Record<string, string> = {
+    mobile: "📱",
+    tablet: "📱",
+    desktop: "🖥️",
+    Desktop: "🖥️",
+    console: "🎮",
+    smarttv: "📺",
+    wearable: "⌚",
+    embedded: "🔧",
+};
+
+// OS icons map
+const OS_ICONS: Record<string, string> = {
+    Windows: "🪟",
+    "Mac OS": "🍎",
+    macOS: "🍎",
+    iOS: "🍎",
+    Android: "🤖",
+    Linux: "🐧",
+    Ubuntu: "🐧",
+    Chrome: "🌐",
+    ChromeOS: "🌐",
+    "Windows Phone": "🪟",
+};
+
+// Browser icons map
+const BROWSER_ICONS: Record<string, string> = {
+    Chrome: "🌐",
+    Firefox: "🦊",
+    Safari: "🧭",
+    Edge: "🔷",
+    Opera: "🔴",
+    "Samsung Browser": "📱",
+    "Mobile Safari": "🧭",
+    "Chrome Mobile": "🌐",
+    "Firefox Mobile": "🦊",
+    IE: "🔵",
+    Brave: "🦁",
+    Arc: "🌈",
+    Vivaldi: "🎻",
+};
+
+const getEmoji = (map: Record<string, string>, key: string, fallback = "🌐") =>
+    map[key] ?? fallback;
+
+const SourceWidget = ({ websiteAnalytics, loading }: Props) => {
+
+    // Empty state component
+    const EmptyState = ({ label }: { label: string }) => (
+        <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground gap-3">
+            <BarChart2 className="h-10 w-10 opacity-20" />
+            <p className="text-sm font-medium opacity-50">No {label} data yet</p>
+        </div>
+    );
+
+    // Loading skeleton
+    const LoadingSkeleton = () => (
+        <div className="flex flex-col gap-3 h-[300px] justify-center px-4">
+            {[80, 60, 45, 30, 20].map((w, i) => (
+                <div key={i} className="flex items-center gap-3">
+                    <div
+                        className="h-8 rounded-full bg-muted animate-pulse"
+                        style={{ width: `${w}%` }}
+                    />
+                    <div className="h-4 w-8 rounded bg-muted animate-pulse" />
+                </div>
+            ))}
+        </div>
+    );
 
     // Custom label renderer for bar chart
     const CustomLabel = (
