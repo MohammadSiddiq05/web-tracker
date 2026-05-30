@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, eq, gt } from "drizzle-orm";
+import { and, eq, lt } from "drizzle-orm";
 import { UAParser } from "ua-parser-js";
 import { db } from "@/configs/db";
 import { liveUserTable } from "@/configs/schema";
@@ -34,18 +34,15 @@ export const POST = async (req: NextRequest) => {
         const osInfo = parser.getOS()?.name || "";
         const browserInfo = parser.getBrowser()?.name || "";
 
-        const ip =
-            req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-            req.headers.get("x-real-ip") ||
-            "";
+        // ── Vercel geo headers (free, no rate limit) ──────────────────────
+        const country     = req.headers.get("x-vercel-ip-country")        || "";
+        const countryCode = req.headers.get("x-vercel-ip-country")        || "";
+        const region      = req.headers.get("x-vercel-ip-country-region") || "";
+        const city        = decodeURIComponent(req.headers.get("x-vercel-ip-city") || "");
 
-        let geoInfo: any = {};
-        try {
-            const geoRes = await fetch(`http://ip-api.com/json/${ip}`);
-            geoInfo = await geoRes.json();
-        } catch {
-            console.warn("Geo lookup failed");
-        }
+        // lat/lng Vercel provide nahi karta — blank rakhein
+        const lat = "";
+        const lng = "";
 
         await db
             .insert(liveUserTable)
@@ -53,17 +50,29 @@ export const POST = async (req: NextRequest) => {
                 visitorId,
                 websiteId,
                 last_seen,
-                city: geoInfo.city || "",
-                region: geoInfo.regionName || "",
-                country: geoInfo.country || "",
-                countryCode: geoInfo.countryCode || "",
-                lat: geoInfo.lat?.toString() || "",
-                lng: geoInfo.lon?.toString() || "",
+                city,
+                region,
+                country,
+                countryCode,
+                lat,
+                lng,
                 device: deviceInfo,
                 os: osInfo,
                 browser: browserInfo,
             })
-
+            .onConflictDoUpdate({
+                target: [liveUserTable.visitorId, liveUserTable.websiteId],
+                set: {
+                    last_seen,
+                    city,
+                    region,
+                    country,
+                    countryCode,
+                    device: deviceInfo,
+                    os: osInfo,
+                    browser: browserInfo,
+                },
+            });
 
         return NextResponse.json(
             { message: "Data received successfully" },
@@ -90,17 +99,21 @@ export const GET = async (req: NextRequest) => {
             );
         }
 
-        const now = Date.now();
-        const threshold = now - 30_000; 
+        const threshold = (Date.now() - 30_000).toString();
 
-        const allUsers = await db
+        await db
+            .delete(liveUserTable)
+            .where(
+                and(
+                    eq(liveUserTable.websiteId, websiteId),
+                    lt(liveUserTable.last_seen, threshold)
+                )
+            );
+
+        const activeUsers = await db
             .select()
             .from(liveUserTable)
             .where(eq(liveUserTable.websiteId, websiteId));
-
-        const activeUsers = allUsers.filter(
-            (u) => Number(u.last_seen) >= threshold
-        );
 
         return NextResponse.json(activeUsers, { headers: CORS_HEADERS });
 

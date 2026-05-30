@@ -1,4 +1,4 @@
-import { integer, pgTable, varchar, boolean, uuid } from "drizzle-orm/pg-core";
+import { integer, pgTable, varchar, boolean, uuid, unique } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -74,15 +74,15 @@ export const pageViewTable = pgTable("pageViews", {
 
 
 
+
 export const liveUserTable = pgTable(
     "liveUsers",
     {
-
         id: integer()
             .primaryKey()
             .generatedAlwaysAsIdentity(),
 
-         websiteId: uuid("websiteId").notNull(),
+        websiteId: uuid("websiteId").notNull(),
 
         visitorId: varchar().notNull(),
 
@@ -105,6 +105,8 @@ export const liveUserTable = pgTable(
         os: varchar(),
 
         browser: varchar(),
-
-    }
+    },
+    (table) => [
+        unique("visitor_website_idx").on(table.visitorId, table.websiteId),
+    ]
 );

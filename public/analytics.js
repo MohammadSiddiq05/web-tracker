@@ -82,7 +82,7 @@
 
   console.log("Sending Entry Request");
 
-  fetch("https://web-tracker-main-2af835e.kuberns.cloud/api/track", {
+  fetch("http://localhost:3000/api/track", {
     method: "POST",
 
     headers: {
@@ -126,7 +126,7 @@
 
     console.log("Sending Exit Request");
 
-    fetch("https://web-tracker-main-2af835e.kuberns.cloud/api/track", {
+    fetch("http://localhost:3000/api/track", {
       method: "POST",
 
       keepalive: true,
@@ -158,7 +158,7 @@
 
   const sendLivePing = async () => {
     try {
-      const response = await fetch("https://web-tracker-main-2af835e.kuberns.cloud/api/live", {
+      const response = await fetch("http://localhost:3000/api/live", {
         method: "POST",
 
         headers: {

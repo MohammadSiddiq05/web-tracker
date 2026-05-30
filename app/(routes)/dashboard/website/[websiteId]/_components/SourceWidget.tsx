@@ -6,18 +6,13 @@ import {
     MapPin,
     Monitor,
     Flag,
+    Cpu,
+    Chrome,
+    BarChart2,
 } from "lucide-react";
 
-
 import { Card, CardContent } from "@/components/ui/card";
-
-import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-} from "@/components/ui/tabs";
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
     Bar,
     BarChart,
@@ -27,18 +22,13 @@ import {
     XAxis,
     YAxis,
 } from "recharts";
-
 import {
     ChartConfig,
     ChartContainer,
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart";
-
-import {
-    AnalyticsType,
-    IMAGE_URL_FOR_DOMAINS,
-} from "@/configs/type";
+import { AnalyticsType } from "@/configs/type";
 
 type Props = {
     websiteAnalytics: AnalyticsType | undefined;
@@ -52,290 +42,390 @@ const chartConfig = {
     },
 } satisfies ChartConfig;
 
-const SourceWidget = ({ websiteAnalytics }: Props) => {
+// Device icons map
+const DEVICE_ICONS: Record<string, string> = {
+    mobile: "📱",
+    tablet: "📱",
+    desktop: "🖥️",
+    Desktop: "🖥️",
+    console: "🎮",
+    smarttv: "📺",
+    wearable: "⌚",
+    embedded: "🔧",
+};
 
-    console.log("REFERRALS:", websiteAnalytics?.referrals);
-    console.log("COUNTRIES:", websiteAnalytics?.countries);
-    console.log("DEVICES:", websiteAnalytics?.devices);
-    // CUSTOM LABEL
-    const CustomLabel = (props: any, type: "domain" | "image" | "text") => {
-        const { x, y, height, payload } = props;
+// OS icons map
+const OS_ICONS: Record<string, string> = {
+    Windows: "🪟",
+    "Mac OS": "🍎",
+    macOS: "🍎",
+    iOS: "🍎",
+    Android: "🤖",
+    Linux: "🐧",
+    Ubuntu: "🐧",
+    Chrome: "🌐",
+    ChromeOS: "🌐",
+    "Windows Phone": "🪟",
+};
 
-        let imageUrl = "";
-        let text = payload?.name || "";
+// Browser icons map
+const BROWSER_ICONS: Record<string, string> = {
+    Chrome: "🌐",
+    Firefox: "🦊",
+    Safari: "🧭",
+    Edge: "🔷",
+    Opera: "🔴",
+    "Samsung Browser": "📱",
+    "Mobile Safari": "🧭",
+    "Chrome Mobile": "🌐",
+    "Firefox Mobile": "🦊",
+    IE: "🔵",
+    Brave: "🦁",
+    Arc: "🌈",
+    Vivaldi: "🎻",
+};
+
+const getEmoji = (map: Record<string, string>, key: string, fallback = "🌐") =>
+    map[key] ?? fallback;
+
+const SourceWidget = ({ websiteAnalytics, loading }: Props) => {
+
+    // Empty state component
+    const EmptyState = ({ label }: { label: string }) => (
+        <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground gap-3">
+            <BarChart2 className="h-10 w-10 opacity-20" />
+            <p className="text-sm font-medium opacity-50">No {label} data yet</p>
+        </div>
+    );
+
+    // Loading skeleton
+    const LoadingSkeleton = () => (
+        <div className="flex flex-col gap-3 h-[300px] justify-center px-4">
+            {[80, 60, 45, 30, 20].map((w, i) => (
+                <div key={i} className="flex items-center gap-3">
+                    <div
+                        className="h-8 rounded-full bg-muted animate-pulse"
+                        style={{ width: `${w}%` }}
+                    />
+                    <div className="h-4 w-8 rounded bg-muted animate-pulse" />
+                </div>
+            ))}
+        </div>
+    );
+
+    // Custom label renderer for bar chart
+    const CustomLabel = (
+        props: any,
+        type: "domain" | "flag" | "emoji" | "text",
+        emojiMap?: Record<string, string>,
+        fallbackEmoji?: string
+    ) => {
+        const { x, y, height, value, payload } = props;
+        const centerY = y + height / 2;
+        const name: string = payload?.name || value || "";
 
         if (type === "domain") {
-            const domain =
-                payload?.domainName?.trim() ||
-                payload?.name?.trim() ||
-                "direct";
-            text = domain;
-            imageUrl = `https://icons.duckduckgo.com/ip3/${domain
+            const rawDomain = payload?.domainName?.trim() || name || "direct";
+            const faviconUrl = `https://icons.duckduckgo.com/ip3/${rawDomain
                 .replace("https://", "")
                 .replace("http://", "")}.ico`;
-        }
 
-        if (type === "image") {
-            imageUrl = payload?.image || "";
-            text = payload?.name || "";
-        }
-
-        const imgSize = 20;
-        const textX = type !== "text" ? imgSize + 10 : 0;
-        const centerY = y + height / 2;
-
-        return (
-            <g>
-                {type !== "text" && imageUrl && (
+            return (
+                <g>
                     <image
-                        href={imageUrl}
+                        href={faviconUrl}
                         x={x + 10}
-                        y={centerY - imgSize / 2}
-                        width={imgSize}
-                        height={imgSize}
+                        y={centerY - 10}
+                        width={20}
+                        height={20}
+                        clipPath="circle(50%)"
                     />
-                )}
-                <text
-                    x={x + 10 + textX}
-                    y={centerY + 4}
-                    fontSize={12}
-                    fill="white"
-                    fontWeight={500}
-                >
-                    {text}
-                </text>
-            </g>
+                    <text
+                        x={x + 38}
+                        y={centerY + 4}
+                        fontSize={12}
+                        fill="white"
+                        fontWeight={500}
+                    >
+                        {rawDomain || "direct"}
+                    </text>
+                </g>
+            );
+        }
+
+        if (type === "flag") {
+            const flagUrl = payload?.image || "";
+            return (
+                <g>
+                    {flagUrl && (
+                        <image
+                            href={flagUrl}
+                            x={x + 10}
+                            y={centerY - 10}
+                            width={24}
+                            height={16}
+                            rx={3}
+                        />
+                    )}
+                    <text
+                        x={x + (flagUrl ? 42 : 10)}
+                        y={centerY + 4}
+                        fontSize={12}
+                        fill="white"
+                        fontWeight={500}
+                    >
+                        {name}
+                    </text>
+                </g>
+            );
+        }
+
+        if (type === "emoji" && emojiMap) {
+            const emoji = getEmoji(emojiMap, name, fallbackEmoji);
+            return (
+                <g>
+                    <text x={x + 10} y={centerY + 5} fontSize={15}>
+                        {emoji}
+                    </text>
+                    <text
+                        x={x + 36}
+                        y={centerY + 4}
+                        fontSize={12}
+                        fill="white"
+                        fontWeight={500}
+                    >
+                        {name}
+                    </text>
+                </g>
+            );
+        }
+
+        // plain text
+        return (
+            <text
+                x={x + 12}
+                y={centerY + 4}
+                fontSize={12}
+                fill="white"
+                fontWeight={500}
+            >
+                {name}
+            </text>
         );
     };
-    // REUSABLE CHART
+
+    // Reusable horizontal bar chart
     const RenderChart = ({
         data,
         dataKey,
         labelType,
-    }: any) => (
+        emojiMap,
+        fallbackEmoji,
+        emptyLabel,
+    }: {
+        data: any[] | undefined;
+        dataKey: string;
+        labelType: "domain" | "flag" | "emoji" | "text";
+        emojiMap?: Record<string, string>;
+        fallbackEmoji?: string;
+        emptyLabel: string;
+    }) => {
+        if (loading) return <LoadingSkeleton />;
+        if (!data || data.length === 0) return <EmptyState label={emptyLabel} />;
 
-        <ChartContainer
-            config={chartConfig}
-            className="h-[340px] w-full"
-        >
-            <ResponsiveContainer
-                width="100%"
-                height="100%"
-            >
-                <BarChart
-                    accessibilityLayer
-                    data={data || []}
-                    layout="vertical"
-                    margin={{
-                        left: 20,
-                        right: 50,
-                        top: 10,
-                        bottom: 10,
-                    }}
-                    barCategoryGap={14}
-                >
+        // Sort descending and take top 8
+        const sorted = [...data]
+            .sort((a, b) => b.uv - a.uv)
+            .slice(0, 8);
 
-                    {/* GRADIENT */}
-                    <defs>
-                        <linearGradient
-                            id="barGradient"
-                            x1="0"
-                            y1="0"
-                            x2="1"
-                            y2="0"
-                        >
-                            <stop
-                                offset="0%"
-                                stopColor="var(--primary)"
-                                stopOpacity={1}
-                            />
-
-                            <stop
-                                offset="100%"
-                                stopColor="var(--primary)"
-                                stopOpacity={0.6}
-                            />
-                        </linearGradient>
-                    </defs>
-
-                    <CartesianGrid
-                        horizontal={false}
-                        strokeDasharray="4 4"
-                        opacity={0.12}
-                    />
-
-                    <YAxis
-                        dataKey={dataKey}
-                        type="category"
-                        hide
-                    />
-
-                    <XAxis
-                        dataKey="uv"
-                        type="number"
-                        hide
-                    />
-
-                    <ChartTooltip
-                        cursor={false}
-                        content={<ChartTooltipContent />}
-                    />
-
-                    <Bar
-                        dataKey="uv"
-                        fill="url(#barGradient)"
-                        radius={[14, 14, 14, 14]}
+        return (
+            <ChartContainer config={chartConfig} className="h-[340px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                        accessibilityLayer
+                        data={sorted}
+                        layout="vertical"
+                        margin={{ left: 20, right: 55, top: 8, bottom: 8 }}
+                        barCategoryGap={10}
                     >
+                        <defs>
+                            <linearGradient
+                                id="barGradient"
+                                x1="0" y1="0" x2="1" y2="0"
+                            >
+                                <stop
+                                    offset="0%"
+                                    stopColor="var(--primary)"
+                                    stopOpacity={1}
+                                />
+                                <stop
+                                    offset="100%"
+                                    stopColor="var(--primary)"
+                                    stopOpacity={0.5}
+                                />
+                            </linearGradient>
+                        </defs>
 
-                        {/* LEFT LABEL */}
-                        <LabelList
-                            dataKey={dataKey}
-                            position="insideLeft"
-                            content={(props) =>
-                                CustomLabel(props, labelType)
-                            }
+                        <CartesianGrid
+                            horizontal={false}
+                            strokeDasharray="4 4"
+                            opacity={0.1}
                         />
 
-                        {/* RIGHT VALUE */}
-                        <LabelList
+                        <YAxis dataKey={dataKey} type="category" hide />
+                        <XAxis dataKey="uv" type="number" hide />
+
+                        <ChartTooltip
+                            cursor={false}
+                            content={<ChartTooltipContent />}
+                        />
+
+                        <Bar
                             dataKey="uv"
-                            position="right"
-                            fill="currentColor"
-                            fontSize={12}
-                            fontWeight={700}
-                        />
+                            fill="url(#barGradient)"
+                            radius={[12, 12, 12, 12]}
+                            minPointSize={60}
+                        >
+                            <LabelList
+                                dataKey={dataKey}
+                                position="insideLeft"
+                                content={(props) =>
+                                    CustomLabel(props, labelType, emojiMap, fallbackEmoji)
+                                }
+                            />
+                            <LabelList
+                                dataKey="uv"
+                                position="right"
+                                fill="currentColor"
+                                fontSize={12}
+                                fontWeight={700}
+                            />
+                        </Bar>
+                    </BarChart>
+                </ResponsiveContainer>
+            </ChartContainer>
+        );
+    };
 
-                    </Bar>
-
-                </BarChart>
-            </ResponsiveContainer>
-        </ChartContainer>
+    // Stats summary row
+    const StatPill = ({ label, value }: { label: string; value: number }) => (
+        <div className="flex flex-col items-center px-4 py-2 rounded-xl bg-muted/40 min-w-[80px]">
+            <span className="text-lg font-bold tabular-nums">{value}</span>
+            <span className="text-[11px] text-muted-foreground">{label}</span>
+        </div>
     );
+
+    const tabs = [
+        {
+            value: "source",
+            icon: <Link2 className="h-3.5 w-3.5" />,
+            label: "Sources",
+            count: websiteAnalytics?.referrals?.length ?? 0,
+        },
+        {
+            value: "countries",
+            icon: <Globe className="h-3.5 w-3.5" />,
+            label: "Countries",
+            count: websiteAnalytics?.countries?.length ?? 0,
+        },
+        {
+            value: "cities",
+            icon: <MapPin className="h-3.5 w-3.5" />,
+            label: "Cities",
+            count: websiteAnalytics?.cities?.length ?? 0,
+        },
+        {
+            value: "devices",
+            icon: <Monitor className="h-3.5 w-3.5" />,
+            label: "Devices",
+            count: websiteAnalytics?.devices?.length ?? 0,
+        },
+        {
+            value: "os",
+            icon: <Cpu className="h-3.5 w-3.5" />,
+            label: "OS",
+            count: websiteAnalytics?.os?.length ?? 0,
+        },
+        {
+            value: "browsers",
+            icon: <Chrome className="h-3.5 w-3.5" />,
+            label: "Browsers",
+            count: websiteAnalytics?.browsers?.length ?? 0,
+        },
+        {
+            value: "params",
+            icon: <Flag className="h-3.5 w-3.5" />,
+            label: "Params",
+            count: websiteAnalytics?.refParams?.length ?? 0,
+        },
+    ];
 
     return (
         <div className="w-full">
-
-            <Card
-                className="
-          rounded-[30px]
-          border
-          shadow-sm
-          overflow-hidden
-        "
-            >
+            <Card className="rounded-[30px] border shadow-sm overflow-hidden">
 
                 {/* HEADER */}
-                <div
-                    className="
-            flex
-            items-center
-            justify-between
-            px-6
-            pt-6
-          "
-                >
-
+                <div className="flex items-start justify-between px-6 pt-6 pb-4">
                     <div>
-
-                        <h2
-                            className="
-                text-2xl
-                font-bold
-                tracking-tight
-              "
-                        >
+                        <h2 className="text-2xl font-bold tracking-tight">
                             Traffic Insights
                         </h2>
-
-                        <p
-                            className="
-                text-sm
-                text-muted-foreground
-                mt-1
-              "
-                        >
-                            Analyze visitors, traffic sources,
-                            countries and devices.
+                        <p className="text-sm text-muted-foreground mt-1">
+                            Sources, locations, devices &amp; browsers
                         </p>
-
                     </div>
-
-                    <div
-                        className="
-              h-14
-              w-14
-              rounded-2xl
-              bg-primary/10
-              flex
-              items-center
-              justify-center
-            "
-                    >
+                    <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
                         <Globe className="h-7 w-7 text-primary" />
                     </div>
-
                 </div>
 
-                <CardContent className="p-6">
+                <CardContent className="px-6 pb-6 pt-0">
 
-                    <Tabs
-                        defaultValue="source"
-                        className="w-full"
-                    >
+                    {/* SUMMARY PILLS */}
+                    {websiteAnalytics && (
+                        <div className="flex gap-2 flex-wrap mb-5">
+                            <StatPill
+                                label="Countries"
+                                value={websiteAnalytics.countries?.length ?? 0}
+                            />
+                            <StatPill
+                                label="Cities"
+                                value={websiteAnalytics.cities?.length ?? 0}
+                            />
+                            <StatPill
+                                label="Sources"
+                                value={websiteAnalytics.referrals?.length ?? 0}
+                            />
+                            <StatPill
+                                label="Devices"
+                                value={websiteAnalytics.devices?.length ?? 0}
+                            />
+                            <StatPill
+                                label="Browsers"
+                                value={websiteAnalytics.browsers?.length ?? 0}
+                            />
+                        </div>
+                    )}
 
-                        {/* TAB LIST */}
-                        <TabsList
-                            className="
-                grid
-                grid-cols-5
-                w-full
-                rounded-2xl
-                h-12
-                mb-6
-                bg-muted/60
-              "
-                        >
+                    <Tabs defaultValue="source" className="w-full">
 
-                            <TabsTrigger
-                                value="source"
-                                className="rounded-xl gap-2"
-                            >
-                                <Link2 className="h-4 w-4" />
-                                Sources
-                            </TabsTrigger>
-
-                            <TabsTrigger
-                                value="params"
-                                className="rounded-xl gap-2"
-                            >
-                                <Flag className="h-4 w-4" />
-                                Params
-                            </TabsTrigger>
-
-                            <TabsTrigger
-                                value="countries"
-                                className="rounded-xl gap-2"
-                            >
-                                <Globe className="h-4 w-4" />
-                                Countries
-                            </TabsTrigger>
-
-                            <TabsTrigger
-                                value="cities"
-                                className="rounded-xl gap-2"
-                            >
-                                <MapPin className="h-4 w-4" />
-                                Cities
-                            </TabsTrigger>
-
-                            <TabsTrigger
-                                value="devices"
-                                className="rounded-xl gap-2"
-                            >
-                                <Monitor className="h-4 w-4" />
-                                Devices
-                            </TabsTrigger>
-
+                        {/* TAB LIST — scrollable on small screens */}
+                        <TabsList className="flex w-full overflow-x-auto rounded-2xl h-auto p-1 mb-5 bg-muted/60 gap-1 no-scrollbar">
+                            {tabs.map((tab) => (
+                                <TabsTrigger
+                                    key={tab.value}
+                                    value={tab.value}
+                                    className="rounded-xl gap-1.5 px-3 py-2 text-xs font-medium whitespace-nowrap flex-shrink-0 data-[state=active]:shadow-sm"
+                                >
+                                    {tab.icon}
+                                    {tab.label}
+                                    {tab.count > 0 && (
+                                        <span className="ml-1 text-[10px] bg-primary/15 text-primary rounded-full px-1.5 py-0.5 font-semibold tabular-nums">
+                                            {tab.count}
+                                        </span>
+                                    )}
+                                </TabsTrigger>
+                            ))}
                         </TabsList>
 
                         {/* SOURCES */}
@@ -344,6 +434,63 @@ const SourceWidget = ({ websiteAnalytics }: Props) => {
                                 data={websiteAnalytics?.referrals}
                                 dataKey="domainName"
                                 labelType="domain"
+                                emptyLabel="referral source"
+                            />
+                        </TabsContent>
+
+                        {/* COUNTRIES */}
+                        <TabsContent value="countries">
+                            <RenderChart
+                                data={websiteAnalytics?.countries}
+                                dataKey="name"
+                                labelType="flag"
+                                emptyLabel="country"
+                            />
+                        </TabsContent>
+
+                        {/* CITIES */}
+                        <TabsContent value="cities">
+                            <RenderChart
+                                data={websiteAnalytics?.cities}
+                                dataKey="name"
+                                labelType="flag"
+                                emptyLabel="city"
+                            />
+                        </TabsContent>
+
+                        {/* DEVICES */}
+                        <TabsContent value="devices">
+                            <RenderChart
+                                data={websiteAnalytics?.devices}
+                                dataKey="name"
+                                labelType="emoji"
+                                emojiMap={DEVICE_ICONS}
+                                fallbackEmoji="🖥️"
+                                emptyLabel="device"
+                            />
+                        </TabsContent>
+
+                        {/* OS */}
+                        <TabsContent value="os">
+                            <RenderChart
+                                data={websiteAnalytics?.os}
+                                dataKey="name"
+                                labelType="emoji"
+                                emojiMap={OS_ICONS}
+                                fallbackEmoji="💻"
+                                emptyLabel="OS"
+                            />
+                        </TabsContent>
+
+                        {/* BROWSERS */}
+                        <TabsContent value="browsers">
+                            <RenderChart
+                                data={websiteAnalytics?.browsers}
+                                dataKey="name"
+                                labelType="emoji"
+                                emojiMap={BROWSER_ICONS}
+                                fallbackEmoji="🌐"
+                                emptyLabel="browser"
                             />
                         </TabsContent>
 
@@ -353,42 +500,13 @@ const SourceWidget = ({ websiteAnalytics }: Props) => {
                                 data={websiteAnalytics?.refParams}
                                 dataKey="name"
                                 labelType="text"
-                            />
-                        </TabsContent>
-
-                        {/* COUNTRIES */}
-                        <TabsContent value="countries">
-                            <RenderChart
-                                data={websiteAnalytics?.countries}
-                                dataKey="name"
-                                labelType="image"
-                            />
-                        </TabsContent>
-
-                        {/* CITIES */}
-                        <TabsContent value="cities">
-                            <RenderChart
-                                data={websiteAnalytics?.cities}
-                                dataKey="name"
-                                labelType="image"
-                            />
-                        </TabsContent>
-
-                        {/* DEVICES */}
-                        <TabsContent value="devices">
-                            <RenderChart
-                                data={websiteAnalytics?.devices}
-                                dataKey="name"
-                                labelType="text"
+                                emptyLabel="UTM param"
                             />
                         </TabsContent>
 
                     </Tabs>
-
                 </CardContent>
-
             </Card>
-
         </div>
     );
 };
