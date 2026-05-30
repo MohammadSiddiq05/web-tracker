@@ -34,18 +34,15 @@ export const POST = async (req: NextRequest) => {
         const osInfo = parser.getOS()?.name || "";
         const browserInfo = parser.getBrowser()?.name || "";
 
-        const ip =
-            req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-            req.headers.get("x-real-ip") ||
-            "";
+        // ── Vercel geo headers (free, no rate limit) ──────────────────────
+        const country     = req.headers.get("x-vercel-ip-country")        || "";
+        const countryCode = req.headers.get("x-vercel-ip-country")        || "";
+        const region      = req.headers.get("x-vercel-ip-country-region") || "";
+        const city        = decodeURIComponent(req.headers.get("x-vercel-ip-city") || "");
 
-        let geoInfo: any = {};
-        try {
-            const geoRes = await fetch(`http://ip-api.com/json/${ip}`);
-            geoInfo = await geoRes.json();
-        } catch {
-            console.warn("Geo lookup failed");
-        }
+        // lat/lng Vercel provide nahi karta — blank rakhein
+        const lat = "";
+        const lng = "";
 
         await db
             .insert(liveUserTable)
@@ -53,20 +50,29 @@ export const POST = async (req: NextRequest) => {
                 visitorId,
                 websiteId,
                 last_seen,
-                city: geoInfo.city || "",
-                region: geoInfo.regionName || "",
-                country: geoInfo.country || "",
-                countryCode: geoInfo.countryCode || "",
-                lat: geoInfo.lat?.toString() || "",
-                lng: geoInfo.lon?.toString() || "",
+                city,
+                region,
+                country,
+                countryCode,
+                lat,
+                lng,
                 device: deviceInfo,
                 os: osInfo,
                 browser: browserInfo,
-            }).onConflictDoUpdate({
+            })
+            .onConflictDoUpdate({
                 target: [liveUserTable.visitorId, liveUserTable.websiteId],
-                set: { last_seen }
+                set: {
+                    last_seen,
+                    city,
+                    region,
+                    country,
+                    countryCode,
+                    device: deviceInfo,
+                    os: osInfo,
+                    browser: browserInfo,
+                },
             });
-
 
         return NextResponse.json(
             { message: "Data received successfully" },
@@ -93,20 +99,14 @@ export const GET = async (req: NextRequest) => {
             );
         }
 
-        const now = Date.now();
-        const threshold = now - 30_000;
-
-        const allUsers = await db
-            .select()
-            .from(liveUserTable)
-            .where(eq(liveUserTable.websiteId, websiteId));
+        const threshold = (Date.now() - 30_000).toString();
 
         await db
             .delete(liveUserTable)
             .where(
                 and(
                     eq(liveUserTable.websiteId, websiteId),
-                    lt(liveUserTable.last_seen, threshold.toString())
+                    lt(liveUserTable.last_seen, threshold)
                 )
             );
 
